@@ -1,0 +1,10 @@
+.env file fields:
+
+```DATABASE_URL
+DB_USER
+DB_HOST
+DB_NAME
+DB_PASSWORD
+DB_PORT
+JWT_SECRET
+```
