@@ -3,6 +3,13 @@ const router = express.Router();
 const db = require('../database/config');
 const { authorize } = require('../controllers/auth');
 
+const cookieParser = require("cookie-parser");
+const bodyParser = require("body-parser");
+
+router.use(bodyParser.json());
+router.use(bodyParser.urlencoded({ extended: true }));
+router.use(cookieParser());
+
 // GET all startups
 router.get('/startup/', async (req, res) => {
   try {
@@ -34,12 +41,12 @@ router.use(authorize);
 
 // GET user by id
 router.get('/user/:id', async (req, res) => {
-  if (req.user.id !== req.params.id) {
+  if (!req.user_id || req.user_id !== req.params.id) {
     return res.status(403).json({ error: 'Unauthorized' });
   }
 
   try {
-    const user = await db.oneOrNone('SELECT * FROM users WHERE id = $1', [req.params.id]);
+    const user = await db.oneOrNone('SELECT id, name, email_id, amount FROM users WHERE id = $1', [req.params.id]);
     
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
@@ -58,8 +65,8 @@ router.use((req, res, next) => {
 })
 
 router.post('/pay', async (req, res) => {
-    const startup = req.params.startup;
-    const amount = req.params.amount;
+    const startup = req.body.startup;
+    const amount = req.body.amount;
 
     const PAYMENT_QUERY = `WITH update_balance AS (
       UPDATE users 
@@ -73,7 +80,7 @@ router.post('/pay', async (req, res) => {
     WHERE startup.id = $3
     RETURNING new_user_balance AS new_user_balance;`
 
-    const payment_result = await db.oneOrNone(PAYMENT_QUERY, amount, req.user_id, startup);
+    const payment_result = await db.oneOrNone(PAYMENT_QUERY, [amount, req.user_id, startup]);
 
     if (!payment_result) {
         return res.status(400).json({ error: 'Payment failed, insufficient funds' });

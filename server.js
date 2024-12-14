@@ -5,9 +5,6 @@ const { authRouter } = require('./controllers/auth');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
-app.use(express.json());
-
 // serve public folder statically
 app.use(express.static('public'))
 

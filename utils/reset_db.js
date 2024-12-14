@@ -1,7 +1,13 @@
 require('dotenv').config()
 
 const pgp = require('pg-promise')()
-const db = pgp(process.env.DATABASE_URL)
+const db = pgp({
+    user: process.env.DB_USER,
+    host: process.env.DB_HOST,
+    database: process.env.DB_NAME,
+    password: process.env.DB_PASSWORD,
+    port: process.env.DB_PORT || 5432,
+  })
 
 DROP_TABLES = 'DROP TABLE IF EXISTS startup, users;'
 CREATE_TABLES = `
@@ -15,6 +21,7 @@ CREATE_TABLES = `
             "id" VARCHAR(255) NOT NULL  ,
             "name" VARCHAR(255) NOT NULL,
             "email_id" VARCHAR(255) NOT NULL,
+            "password" VARCHAR(255) NOT NULL,
             "amount" INTEGER NOT NULL,
             PRIMARY KEY ("id")
         );`

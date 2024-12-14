@@ -3,13 +3,19 @@ const db = require('../database/config');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const authRouter = express.Router();
+const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
+
+authRouter.use(bodyParser.json());
+authRouter.use(bodyParser.urlencoded({ extended: true }));
+authRouter.use(cookieParser());
 
 authRouter.post('/login', async (req, res) => {
     const email = req.body.email;
     const password = req.body.password;
 
     try {
-        const user = await db.oneOrNone('SELECT * FROM users WHERE email_id = $1', email); // ('users').where({ email }).first();
+        const user = await db.oneOrNone('SELECT * FROM users WHERE email_id = $1', [email]); // ('users').where({ email }).first();
     
         if (user == null) {
             return res.status(404).json({ message: 'User not found' });
@@ -37,7 +43,7 @@ async function authorize(req, res, next) {
 
     try {
         const decoded = jwt.verify(auth_cookie, process.env.JWT_SECRET);
-        req.user_id = decoded;
+        req.user_id = decoded.id;
         next();
     } catch (error) {
         return res.redirect('/auth/login');
