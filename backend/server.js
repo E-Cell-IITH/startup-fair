@@ -7,6 +7,7 @@ const PORT = process.env.PORT || 3000;
 
 // serve public folder statically
 app.use(express.static('public'))
+app.use(cors());
 
 // Routes
 app.use('/api', apiRouter);
