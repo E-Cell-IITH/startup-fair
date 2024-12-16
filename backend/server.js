@@ -1,13 +1,17 @@
 const express = require('express');
 const apiRouter = require('./controllers/api');
 const { authRouter } = require('./controllers/auth');
+const cors = require('cors')
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // serve public folder statically
 app.use(express.static('public'))
-app.use(cors());
+app.use(cors({
+  origin: process.env.FRONTEND_URL,
+  credentials: true
+}));
 
 // Routes
 app.use('/api', apiRouter);

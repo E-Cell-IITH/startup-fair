@@ -39,6 +39,26 @@ router.get('/startup/:id', async (req, res) => {
 
 router.use(authorize);
 
+// GET user by auth token
+router.get('/user/me', async (req, res) => {
+  if (!req.user_id) {
+    return res.status(403).json({ error: 'Unauthorized' });
+  }
+
+  try {
+    const user = await db.oneOrNone('SELECT id, name, email_id, amount FROM users WHERE id = $1', [req.user_id]);
+    
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    res.json(user);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 // GET user by id
 router.get('/user/:id', async (req, res) => {
   if (!req.user_id || req.user_id !== req.params.id) {
