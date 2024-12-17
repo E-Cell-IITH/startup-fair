@@ -5,8 +5,6 @@ import {
   Button,
   Typography,
   Container,
-  CssBaseline,
-  ThemeProvider,
 } from "@mui/material";
 import Navbar from "../components/Navbar";
 import theme from "../theme";
@@ -49,8 +47,7 @@ const LoginPage = () => {
   };
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <>
       <Navbar />
       <Container component="main" maxWidth="xs">
         <Box
@@ -116,7 +113,7 @@ const LoginPage = () => {
           </Box>
         </Box>
       </Container>
-    </ThemeProvider>
+    </>
   );
 };
 

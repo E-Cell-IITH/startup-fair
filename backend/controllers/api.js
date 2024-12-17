@@ -85,7 +85,7 @@ router.use((req, res, next) => {
 })
 
 router.post('/pay', async (req, res) => {
-    const startup = req.body.startup;
+    const startup = req.body.startup_id;
     const amount = req.body.amount;
 
     const PAYMENT_QUERY = `WITH update_balance AS (
@@ -103,7 +103,7 @@ router.post('/pay', async (req, res) => {
     const payment_result = await db.oneOrNone(PAYMENT_QUERY, [amount, req.user_id, startup]);
 
     if (!payment_result) {
-        return res.status(400).json({ error: 'Payment failed, insufficient funds' });
+        return res.status(400).json({ error: 'Payment failed, insufficient funds or invalid startup ID' });
     }
 
     res.status(200).json({ message: 'Payment successful', new_balance: payment_result.new_user_balance });
