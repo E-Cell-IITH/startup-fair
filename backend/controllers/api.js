@@ -84,9 +84,17 @@ router.use((req, res, next) => {
   next();
 })
 
+function isNumeric(n) {
+  return !isNaN(parseFloat(n)) && isFinite(n);
+}
+
 router.post('/pay', async (req, res) => {
     const startup = req.body.startup_id;
     const amount = req.body.amount;
+
+    if (!isNumeric(amount) || Number(amount)<=0 || !Number.isInteger(Number(amount))) {
+      return res.status(400).json({ error: "Payment amount must be a positive integer" })
+    }
 
     const PAYMENT_QUERY = `WITH update_balance AS (
       UPDATE users 
