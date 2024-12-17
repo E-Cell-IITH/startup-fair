@@ -21,6 +21,12 @@ const PaymentPage = () => {
       return
     }
 
+    if (parseInt(amount, 10) <= 0) {
+      setError('Invalid amount')
+      setLoading(false)
+      return
+    }
+
     setLoading(true);
 
     const fetchUser = async () => {
