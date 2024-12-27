@@ -3,7 +3,7 @@ import 'reflect-metadata';
 import fastify from 'fastify';
 import { AppDataSource } from './data-source';
 import { TypeBoxTypeProvider, TypeBoxValidatorCompiler } from '@fastify/type-provider-typebox';
-import addUserRoutes from './routers/user';
+import addUserRoutes from './routers/public';
 import addProtectedRoutes from './routers/protected';
 
 const server = fastify({ logger: {file: './log', level: 'debug'} })
