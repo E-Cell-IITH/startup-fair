@@ -6,6 +6,7 @@ import fastifyCookie from "@fastify/cookie";
 import { Startup } from "../entity/Startup";
 import { Equity } from "../entity/Investment";
 import { FastifyReply, FastifyRequest } from "fastify";
+import { Mutex } from "./lib";
 
 var investment_valuation_increment = Number.parseInt(process.env.PER_INVESTMENT_VALUATION_INCREMENT as string)
 var investment_amount = Number.parseInt(process.env.PER_INVESTMENT_AMOUNT as string)
@@ -28,6 +29,8 @@ const requireAuth_404 = async (request: FastifyRequest, reply: FastifyReply) => 
 }
 
 const protectedRoutes: FastifyPluginAsyncTypebox = async function protectedRoutes(fastify, opts) {
+    
+    const pay_mutex = new Mutex();
 
     fastify.post('/me', {preHandler:requireAuth_404} , async function (request, reply) {
         reply.code(200);
@@ -58,50 +61,60 @@ const protectedRoutes: FastifyPluginAsyncTypebox = async function protectedRoute
             const startupRepository = AppDataSource.getRepository(Startup);
             const investmentRepository = AppDataSource.getRepository(Equity);
             
-            let [user, startup, investment] = await Promise.all([
-                userRepository.findOne({where: {id: request.user.id}}),
-                startupRepository.findOne({where: {id: startup_id}}),
-                investmentRepository.findOne({where: {user_id: request.user.id, startup_id: startup_id}})
-            ]);
+            await pay_mutex.acquire();
 
-            if (!user) {
-                reply.code(400);
-                return {error: 'User not found'};
+            try {    
+                let [user, startup, investment] = await Promise.all([
+                    userRepository.findOne({where: {id: request.user.id}}),
+                    startupRepository.findOne({where: {id: startup_id}}),
+                    investmentRepository.findOne({where: {user_id: request.user.id, startup_id: startup_id}})
+                ]);
+
+                if (!user) {
+                    reply.code(400);
+                    return {error: 'User not found'};
+                }
+
+                if (!startup) {
+                    reply.code(400);
+                    return {error: 'Startup not found'};
+                }
+
+                if (user.balance < investment_amount) {
+                    reply.code(400);
+                    return {error: 'Insufficient balance'};
+                }
+
+                user.balance -= investment_amount;
+                let equity_sold = investment_amount / (startup.valuation + investment_valuation_increment);
+
+                if (!investment) {
+                    investment = new Equity();
+                    investment.amount = 0;
+                    investment.equity = 0;
+                }
+                investment.user = user;
+                investment.startup = startup;
+                investment.amount += investment_amount;
+                investment.equity += equity_sold
+                startup.equity_sold += equity_sold
+                startup.valuation += investment_valuation_increment;
+
+                await investmentRepository.save(investment);
+                await userRepository.save(user);
+                await startupRepository.save(startup);
+
+                reply.code(200);
+                return {message: 'Payment successful'};
+
+            } catch (err) {
+                reply.code(500);
+                console.log("Error during payment:", err);
+                return {error: 'Payment failed'};
+
+            } finally {
+                pay_mutex.release();
             }
-
-            if (!startup) {
-                reply.code(400);
-                return {error: 'Startup not found'};
-            }
-
-            if (user.balance < investment_amount) {
-                reply.code(400);
-                return {error: 'Insufficient balance'};
-            }
-
-            user.balance -= investment_amount;
-            let equity_sold = investment_amount / (startup.valuation + investment_valuation_increment);
-
-            if (!investment) {
-                investment = new Equity();
-                investment.amount = 0;
-                investment.equity = 0;
-            }
-            investment.user = user;
-            investment.startup = startup;
-            investment.amount += investment_amount;
-            investment.equity += equity_sold
-            startup.equity_sold += equity_sold
-            startup.valuation += investment_valuation_increment;
-
-            console.log(investment, startup);
-
-            await investmentRepository.save(investment);
-            await userRepository.save(user);
-            await startupRepository.save(startup);
-
-            reply.code(200);
-            return {message: 'Payment successful'};
         }
     })
 }

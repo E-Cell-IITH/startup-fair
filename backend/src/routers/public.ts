@@ -30,7 +30,6 @@ const plugin: FastifyPluginAsyncTypebox = async function addPublicRoutes(fastify
         .limit(25)
         .getRawMany()
 
-      console.log(users);
       reply.code(200);
       return users as unknown as UserType[];
     }
@@ -75,8 +74,6 @@ const plugin: FastifyPluginAsyncTypebox = async function addPublicRoutes(fastify
         user.net_worth = (await user.investments).reduce((acc, investment) => {
           return acc + investment.equity * investment.startup.valuation;
         }, user.balance);
-
-        console.log(user);
 
         reply.code(200);
         return user as unknown as ExtendedUserType;
