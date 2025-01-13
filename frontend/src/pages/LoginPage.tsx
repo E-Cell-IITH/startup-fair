@@ -20,7 +20,7 @@ export default function LoginPage() {
       );
 
       if (response.status === 200) {
-        window.location.href = "/";
+        window.location.href = "/scan";
       } else {
         alert(`Error: ${response.data.message}`);
       }

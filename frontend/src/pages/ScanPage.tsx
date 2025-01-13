@@ -10,7 +10,7 @@ import {
 import { IDetectedBarcode, Scanner } from '@yudiel/react-qr-scanner';
 import { QrCodeScanner } from '@mui/icons-material';
 
-const MainPage = () => {
+const ScanPage = () => {
   const [id, setId] = useState('')
   const [amount, setAmount] = useState('')
   const [showScanner, setShowScanner] = useState(false)
@@ -109,4 +109,4 @@ const MainPage = () => {
   )
 }
 
-export default MainPage;
+export default ScanPage;
