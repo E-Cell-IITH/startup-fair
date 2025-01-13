@@ -81,7 +81,7 @@ const MainPage = () => {
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
             >
-              Submit
+              Pay
             </Button>
           </Box>
           <Divider sx={{ my: 2, width: '100%' }}>

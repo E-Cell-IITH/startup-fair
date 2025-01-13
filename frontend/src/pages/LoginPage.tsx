@@ -1,44 +1,37 @@
 import React, { useState } from "react";
-import {
-  Box,
-  TextField,
-  Button,
-  Typography,
-  Container,
-} from "@mui/material";
-import Navbar from "../components/Navbar";
-import theme from "../theme";
+import { Box, TextField, Button, Typography, Container } from "@mui/material";
 import axios from "axios";
 import config from "../config.json";
 
-const LoginPage = () => {
+export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
     setLoading(true);
 
     try {
-      const response = await axios.post(`${config.BACKEND_URL}/auth/login`, {
-        email,
-        password,
-      }, {
-        withCredentials: true
-      });
+      const response = await axios.post(
+        `${config.BACKEND_URL}/auth/login`,
+        { email, password },
+        { withCredentials: true }
+      );
 
-      if (response.status === 200) window.location.href = "/";
-      else alert(`Error: ${response.data.message}`)
+      if (response.status === 200) {
+        window.location.href = "/";
+      } else {
+        alert(`Error: ${response.data.message}`);
+      }
     } catch (error) {
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 404) {
           console.warn("User not found!");
-          alert(`Error: ${error.response.data.message}`)
+          alert(`Error: ${error.response.data.message}`);
         } else {
-          console.error("An error occurred while fetching user data", error);
-          alert(`Error: ${error.response?.data.message}`)
+          console.error("An error occurred while logging in", error);
+          alert(`Error: ${error.response?.data.message}`);
         }
       }
     } finally {
@@ -47,74 +40,157 @@ const LoginPage = () => {
   };
 
   return (
-    <>
-      <Navbar />
-      <Container component="main" maxWidth="xs">
+    <Box
+      sx={{
+        minHeight: "100vh",
+        width: "100%",
+        background: `
+          linear-gradient(
+            rgba(50, 50, 50, 0.3), 
+            rgba(50, 50, 50, 0.3)
+          ),
+          conic-gradient(
+            from 180deg at 50% 50%, 
+            #093B87 -130.25deg, 
+            #0B4BAB 127deg, 
+            #0D57C7 127.05deg, 
+            #062B61 229.35deg, 
+            #093B87 229.75deg, 
+            #0B4BAB 487deg
+          ),
+          linear-gradient(
+            270deg, 
+            rgba(255, 217, 217, 0.0512) 4.5%, 
+            rgba(158, 65, 163, 0.64) 100%
+          )
+        `,
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+      }}
+    >
+      <Container maxWidth="sm">
         <Box
+          component="form"
+          onSubmit={handleSubmit}
           sx={{
-            marginTop: 4,
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
-            padding: 3,
-            backgroundColor: "background.paper",
-            borderRadius: 2,
-            boxShadow: 1,
           }}
         >
-          <Typography component="h1" variant="h5" sx={{ mb: 3 }}>
-            Sign in
-          </Typography>
           <Box
-            component="form"
-            onSubmit={handleSubmit}
-            noValidate
-            sx={{ mt: 1, width: "100%" }}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              marginBottom: "1rem",
+              color: "white",
+            }}
           >
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="email"
-              label="Email Address"
-              name="email"
-              autoComplete="email"
-              autoFocus
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              InputLabelProps={{
-                style: { color: theme.palette.text.secondary },
-              }}
+            <Box
+              component="img"
+              src="/logo.png"
+              alt="E-Cell Logo"
+              sx={{ height: 92 }}
             />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="Password"
-              type="password"
-              id="password"
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              InputLabelProps={{
-                style: { color: theme.palette.text.secondary },
-              }}
-            />
+          </Box>
+
+          <Typography
+            sx={{
+              mb: 15,
+              fontWeight: "bold",
+              background: "linear-gradient(90deg, rgba(197, 0, 154, 1), rgba(184, 185, 188, 1))",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}
+            fontSize={30}
+          >
+            STARTUP FAIR
+          </Typography>
+
+          <TextField
+            fullWidth
+            label="E-Mail"
+            variant="outlined"
+            margin="normal"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                color: "white",
+                borderRadius: "96px",
+                "& fieldset": {
+                  borderColor: "rgba(0, 0, 0, 0.35)",
+                },
+                "&:hover fieldset": {
+                  borderColor: "rgba(0, 0, 0, 0.35)",
+                },
+                "&.Mui-focused fieldset": {
+                  borderColor: "rgba(0, 0, 0, 0.35)",
+                },
+              },
+              "& .MuiInputLabel-root": {
+                color: "rgba(255, 255, 255, 0.7)",
+                marginLeft: '10px'
+              },
+              marginBottom: "1rem",
+            }}
+          />
+
+          <TextField
+            fullWidth
+            label="Password"
+            type="password"
+            variant="outlined"
+            margin="normal"
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                color: "white",
+                borderRadius: "96px",
+                "& fieldset": {
+                  borderColor: "rgba(0, 0, 0, 0.35)",
+                },
+                "&:hover fieldset": {
+                  borderColor: "rgba(0, 0, 0, 0.35)",
+                },
+                "&.Mui-focused fieldset": {
+                  borderColor: "rgba(0, 0, 0, 0.35)",
+                },
+              },
+              "& .MuiInputLabel-root": {
+                color: "rgba(255, 255, 255, 0.7)",
+                marginLeft: '10px'
+              },
+              marginBottom: "1rem",
+            }}
+          />
+
+          <Box sx={{ mt: 2 }}>
             <Button
               type="submit"
-              fullWidth
               variant="contained"
-              sx={{ mt: 3, mb: 2 }}
+              size="large"
               disabled={loading}
+              sx={{
+                backgroundColor: "rgba(113, 16, 158, 0.79)",
+                color: "white",
+                padding: "0.75rem 3rem",
+                borderRadius: "2rem",
+                "&:hover": {
+                  backgroundColor: "#7e22ce",
+                },
+                fontWeight: "bold",
+              }}
             >
-              {loading ? "Loading..." : "Sign In"}
+              {loading ? "Loading..." : "SUBMIT"}
             </Button>
           </Box>
         </Box>
       </Container>
-    </>
+    </Box>
   );
-};
-
-export default LoginPage;
+}
