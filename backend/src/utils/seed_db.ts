@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import 'reflect-metadata';
 import { AppDataSource } from '../data-source';
-import { Investment } from '../entity/Investment';
+import { Equity } from '../entity/Investment';
 import { Startup } from '../entity/Startup';
 import { User } from '../entity/User';
 
@@ -11,7 +11,7 @@ AppDataSource.initialize().then(async () => {
 
     const userRepository = AppDataSource.getRepository(User);
     const startupRepository = AppDataSource.getRepository(Startup);
-    const investmentRepository = AppDataSource.getRepository(Investment);
+    const investmentRepository = AppDataSource.getRepository(Equity);
 
     const user1 = userRepository.create({
         name: 'User A',
@@ -48,14 +48,14 @@ AppDataSource.initialize().then(async () => {
     const investment1 = investmentRepository.create({
         amount: 20,
     });
-    investment1.user = Promise.resolve(user2),
-    investment1.startup = Promise.resolve(startup1)
+    investment1.user = user2,
+    investment1.startup = startup1
 
     const investment2 = investmentRepository.create({
         amount: 20,
     });
-    investment2.user = Promise.resolve(user2),
-    investment2.startup = Promise.resolve(startup2)
+    investment2.user = user2,
+    investment2.startup = startup2
 
     await investmentRepository.save([investment1, investment2]);
 

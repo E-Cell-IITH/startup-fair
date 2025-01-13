@@ -3,14 +3,14 @@ import 'reflect-metadata';
 import fastify from 'fastify';
 import { AppDataSource } from './data-source';
 import { TypeBoxTypeProvider, TypeBoxValidatorCompiler } from '@fastify/type-provider-typebox';
-import addUserRoutes from './routers/public';
+import addPublicRoutes from './routers/public';
 import addProtectedRoutes from './routers/protected';
 
-const server = fastify({ logger: {file: './log', level: 'debug'} })
+const server = fastify({ logger: {level: 'debug'} })
     .setValidatorCompiler(TypeBoxValidatorCompiler)
     .withTypeProvider<TypeBoxTypeProvider>();
 
-server.register(addUserRoutes, { prefix: '/api' });
+server.register(addPublicRoutes, { prefix: '/api' });
 server.register(addProtectedRoutes, { prefix: '/api' });
 
 AppDataSource.initialize().then(async () => {
@@ -22,7 +22,7 @@ AppDataSource.initialize().then(async () => {
             server.log.error(err);
             process.exit(1);
         }
-        server.log.info(`Server listening on ${address}`);
+        // server.log.info(`Server listening on ${address}`);
     })
 
 })

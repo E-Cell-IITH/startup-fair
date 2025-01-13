@@ -4,38 +4,42 @@ import { User, UserSchema } from "./User";
 import { Type, Static } from "@sinclair/typebox";
 
 @Entity()
-export class Investment {
+export class Equity {
     
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column()
+    @Column({default: 0})
     amount: number;
+
+    @Column('double precision', {default: 0})
+    equity: number;
 
     @CreateDateColumn()
     createdAt: Date;
 
     @ManyToOne(() => User, user => user.investments)
     @JoinColumn({ name: "user_id" })
-    user: Promise<User>;
+    user: User;
 
-    @RelationId((investment: Investment) => investment.user)
+    @RelationId((equity: Equity) => equity.user)
     userId: number;
 
     @ManyToOne(() => Startup, startup => startup.investments)
     @JoinColumn({ name: "startup_id" })
-    startup: Promise<Startup>;
+    startup: Startup;
 
-    @RelationId((investment: Investment) => investment.startup)
+    @RelationId((equity: Equity) => equity.startup)
     startupId: number;
 }
 
-export const InvestmentSchema = Type.Object({
+export const EquitySchema = Type.Object({
     id: Type.Number(),
     userId: Type.Number(),
     startupId: Type.Number(),
     amount: Type.Number(),
+    equity: Type.Number(),
     createdAt: Type.String({ format: "date-time" })
 })
 
-export type InvestmentType = Static<typeof InvestmentSchema>
+export type InvestmentType = Static<typeof EquitySchema>

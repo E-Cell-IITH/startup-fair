@@ -4,14 +4,31 @@ import { AppDataSource } from "../data-source";
 import fastifyJwt, { FastifyJWTOptions } from "@fastify/jwt";
 import fastifyCookie from "@fastify/cookie";
 import { Startup } from "../entity/Startup";
-import { Investment } from "../entity/Investment";
+import { Equity } from "../entity/Investment";
+import { FastifyReply, FastifyRequest } from "fastify";
+
+var investment_valuation_increment = Number.parseInt(process.env.PER_INVESTMENT_VALUATION_INCREMENT as string)
+var investment_amount = Number.parseInt(process.env.PER_INVESTMENT_AMOUNT as string)
+
+const requireAuth = async (request: FastifyRequest, reply: FastifyReply) => {
+    if (!request.cookies || !request.cookies.auth_token) {
+        reply.redirect('/login');
+        return reply;
+    }
+    await request.jwtVerify({onlyCookie: true});
+}
+
+const requireAuth_404 = async (request: FastifyRequest, reply: FastifyReply) => {
+    if (!request.cookies || !request.cookies.auth_token) {
+        reply.code(404)
+        return reply;
+    }
+    await request.jwtVerify({onlyCookie: true});
+}
 
 const protectedRoutes: FastifyPluginAsyncTypebox = async function protectedRoutes(fastify, opts) {
-    fastify.addHook("onRequest", async (request, reply) => {
-        await request.jwtVerify({onlyCookie: true});
-    });
 
-    fastify.post('/me', async function (request, reply) {
+    fastify.post('/me', {preHandler:requireAuth_404} , async function (request, reply) {
         reply.code(200);
         return { user: request.user };
     })
@@ -21,7 +38,6 @@ const protectedRoutes: FastifyPluginAsyncTypebox = async function protectedRoute
         method: 'POST',
         schema: {
             body: Type.Object({
-                amount: Type.Number(),
                 startup_id: Type.Number()
             }),
             response: {
@@ -33,16 +49,18 @@ const protectedRoutes: FastifyPluginAsyncTypebox = async function protectedRoute
                 })
             }
         },
+        preHandler: requireAuth,
         handler: async function (request, reply) {
-            const { amount, startup_id } = request.body;
+            const { startup_id } = request.body;
 
             const userRepository = AppDataSource.getRepository(User);
             const startupRepository = AppDataSource.getRepository(Startup);
-            const investmentRepository = AppDataSource.getRepository(Investment);
+            const investmentRepository = AppDataSource.getRepository(Equity);
             
-            const [user, startup] = await Promise.all([
+            let [user, startup, investment] = await Promise.all([
                 userRepository.findOne({where: {id: request.user.id}}),
-                startupRepository.findOne({where: {id: startup_id}})
+                startupRepository.findOne({where: {id: startup_id}}),
+                investmentRepository.findOne({where: {userId: request.user.id, startupId: startup_id}})
             ]);
 
             if (!user) {
@@ -55,17 +73,21 @@ const protectedRoutes: FastifyPluginAsyncTypebox = async function protectedRoute
                 return {error: 'Startup not found'};
             }
 
-            if (user.balance < amount) {
+            if (user.balance < investment_amount) {
                 reply.code(400);
                 return {error: 'Insufficient balance'};
             }
 
-            user.balance -= amount;
+            user.balance -= investment_amount;
+            let equity_sold = investment_amount / startup.valuation;
 
-            const investment = new Investment();
-            investment.amount = amount;
-            investment.user = Promise.resolve(user);
-            investment.startup = Promise.resolve(startup);
+            if (!investment) investment = new Equity();
+            investment.user = user;
+            investment.startup = startup;
+            investment.amount += investment_amount;
+            investment.equity += equity_sold
+            startup.equity_sold += equity_sold
+            startup.valuation += investment_valuation_increment;
 
             await investmentRepository.save(investment);
             await userRepository.save(user);

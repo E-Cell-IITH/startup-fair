@@ -1,5 +1,5 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { Investment } from "./Investment";
+import { Equity } from "./Investment";
 import { Type, Static } from "@sinclair/typebox";
 
 @Entity()
@@ -14,14 +14,14 @@ export class Startup {
   @Column()
   icon: string;
 
-  @Column()
+  @Column('double precision', {default: 0})
   equity_sold: number;
 
   @Column()
   valuation: number;
 
-  @OneToMany(() => Investment, investment => investment.startup)
-  investments: Promise<Investment[]>;
+  @OneToMany(() => Equity, investment => investment.startup)
+  investments: Equity;
 
 }
 

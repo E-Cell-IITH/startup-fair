@@ -1,5 +1,5 @@
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, RelationId, Unique } from "typeorm";
-import { Investment } from "./Investment";
+import { Equity, EquitySchema } from "./Investment";
 import { Static, Type } from "@sinclair/typebox";
 
 @Entity()
@@ -21,8 +21,8 @@ export class User {
   @Column()
   balance: number;
 
-  @OneToMany(() => Investment, investment => investment.user)
-  investments: Promise<Investment[]>;
+  @OneToMany(() => Equity, investment => investment.user)
+  investments: Equity[];
 
   @RelationId((user: User) => user.investments)
   investmentIds: number[];
@@ -30,6 +30,8 @@ export class User {
   @CreateDateColumn()
   created_at: Date;
   
+  // Not a column
+  net_worth?: number;
 }
 
 export const UserSchema = Type.Object({
@@ -39,7 +41,27 @@ export const UserSchema = Type.Object({
   balance: Type.Number(),
   created_at: Type.String({ format: "date-time" }),
   investmentIds: Type.Array(Type.Number()),
-  total_investment: Type.Optional(Type.Number())
+  net_worth: Type.Optional(Type.Number())
+})
+
+export const ExtendedUserSchema = Type.Object({
+  id: Type.Number(),
+  name: Type.String(),
+  email: Type.String(),
+  balance: Type.Number(),
+  created_at: Type.String({ format: "date-time" }),
+  investments: Type.Array(Type.Composite([
+    Type.Pick(EquitySchema, ['id', 'amount', 'equity']),
+    Type.Object({
+      startup: Type.Object({
+        id: Type.Number(),
+        name: Type.String(),
+        valuation: Type.Number()
+      })
+    })
+  ])),
+  net_worth: Type.Optional(Type.Number())
 })
 
 export type UserType = Static<typeof UserSchema>
+export type ExtendedUserType = Static<typeof ExtendedUserSchema>
