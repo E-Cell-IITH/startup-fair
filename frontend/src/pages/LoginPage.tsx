@@ -44,26 +44,7 @@ export default function LoginPage() {
       sx={{
         minHeight: "100vh",
         width: "100%",
-        background: `
-          linear-gradient(
-            rgba(50, 50, 50, 0.3), 
-            rgba(50, 50, 50, 0.3)
-          ),
-          conic-gradient(
-            from 180deg at 50% 50%, 
-            #093B87 -130.25deg, 
-            #0B4BAB 127deg, 
-            #0D57C7 127.05deg, 
-            #062B61 229.35deg, 
-            #093B87 229.75deg, 
-            #0B4BAB 487deg
-          ),
-          linear-gradient(
-            270deg, 
-            rgba(255, 217, 217, 0.0512) 4.5%, 
-            rgba(158, 65, 163, 0.64) 100%
-          )
-        `,
+        background: 'conic-gradient(from 180deg at 50% 50%, #093B87 -130.25deg, #0B4BAB 127deg, #0D57C7 127.05deg, #062B61 229.35deg, #093B87 229.75deg, #0B4BAB 487deg), linear-gradient(270deg, rgba(255, 217, 217, 0.0512) 4.5%, rgba(158, 65, 163, 0.64) 100%);',
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
