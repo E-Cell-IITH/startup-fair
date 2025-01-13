@@ -21,6 +21,7 @@ const requireAuth = async (request: FastifyRequest, reply: FastifyReply) => {
 const requireAuth_404 = async (request: FastifyRequest, reply: FastifyReply) => {
     if (!request.cookies || !request.cookies.auth_token) {
         reply.code(404)
+        reply.send("");
         return reply;
     }
     await request.jwtVerify({onlyCookie: true});
@@ -60,7 +61,7 @@ const protectedRoutes: FastifyPluginAsyncTypebox = async function protectedRoute
             let [user, startup, investment] = await Promise.all([
                 userRepository.findOne({where: {id: request.user.id}}),
                 startupRepository.findOne({where: {id: startup_id}}),
-                investmentRepository.findOne({where: {userId: request.user.id, startupId: startup_id}})
+                investmentRepository.findOne({where: {user_id: request.user.id, startup_id: startup_id}})
             ]);
 
             if (!user) {
@@ -79,15 +80,21 @@ const protectedRoutes: FastifyPluginAsyncTypebox = async function protectedRoute
             }
 
             user.balance -= investment_amount;
-            let equity_sold = investment_amount / startup.valuation;
+            let equity_sold = investment_amount / (startup.valuation + investment_valuation_increment);
 
-            if (!investment) investment = new Equity();
+            if (!investment) {
+                investment = new Equity();
+                investment.amount = 0;
+                investment.equity = 0;
+            }
             investment.user = user;
             investment.startup = startup;
             investment.amount += investment_amount;
             investment.equity += equity_sold
             startup.equity_sold += equity_sold
             startup.valuation += investment_valuation_increment;
+
+            console.log(investment, startup);
 
             await investmentRepository.save(investment);
             await userRepository.save(user);
@@ -158,7 +165,7 @@ const addProtectedRoutes: FastifyPluginAsyncTypebox = async function addProtecte
     });
 
     fastify.get('/logout', function (request, reply) {
-        reply.clearCookie('auth_token');
+        reply.setCookie('auth_token', '', {expires: new Date(0)});
         reply.redirect('/login');
     })
 

@@ -24,6 +24,6 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "start": "node ./build/index.js",
-    "seed": "node ./build/utils/seed.js"
+    "seed": "node ./build/utils/seed_db.js"
   }
 }

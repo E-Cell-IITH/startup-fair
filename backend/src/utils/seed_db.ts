@@ -13,18 +13,22 @@ AppDataSource.initialize().then(async () => {
     const startupRepository = AppDataSource.getRepository(Startup);
     const investmentRepository = AppDataSource.getRepository(Equity);
 
+    await investmentRepository.delete({})
+    await userRepository.delete({})
+    await startupRepository.delete({})
+
     const user1 = userRepository.create({
         name: 'User A',
         email: 'user.a@example.com',
         password: 'password',
-        balance: 1000
+        balance: 100
     });
 
     const user2 = userRepository.create({
         name: 'User B',
         email: 'user.b@example.com',
         password: 'password',
-        balance: 20
+        balance: 50
     });
 
     await userRepository.save([user1, user2]);
@@ -32,14 +36,14 @@ AppDataSource.initialize().then(async () => {
     const startup1 = startupRepository.create({
         name: 'Startup A',
         icon: 'icon_a.png',
-        equity_sold: 20,
-        valuation: 100
+        equity_sold: 0.2,
+        valuation: 1000
     });
 
     const startup2 = startupRepository.create({
         name: 'Startup B',
         icon: 'icon_b.png',
-        equity_sold: 10,
+        equity_sold: 0,
         valuation: 200
     });
 
@@ -47,17 +51,18 @@ AppDataSource.initialize().then(async () => {
 
     const investment1 = investmentRepository.create({
         amount: 20,
+        equity: 0.2
     });
     investment1.user = user2,
     investment1.startup = startup1
 
-    const investment2 = investmentRepository.create({
-        amount: 20,
-    });
-    investment2.user = user2,
-    investment2.startup = startup2
+    // const investment2 = investmentRepository.create({
+    //     amount: 20,
+    // });
+    // investment2.user = user2,
+    // investment2.startup = startup2
 
-    await investmentRepository.save([investment1, investment2]);
+    await investmentRepository.save([investment1]);
 
     await AppDataSource.destroy()
 
