@@ -6,7 +6,7 @@ import fastifyCookie from "@fastify/cookie";
 import { Startup } from "../entity/Startup";
 import { Equity } from "../entity/Investment";
 import { FastifyReply, FastifyRequest } from "fastify";
-import { Mutex } from "./lib";
+import { Mutex, MutexManager } from "./lib";
 
 var investment_valuation_increment = Number.parseInt(process.env.PER_INVESTMENT_VALUATION_INCREMENT as string)
 var investment_amount = Number.parseInt(process.env.PER_INVESTMENT_AMOUNT as string)
@@ -30,7 +30,7 @@ const requireAuth_404 = async (request: FastifyRequest, reply: FastifyReply) => 
 
 const protectedRoutes: FastifyPluginAsyncTypebox = async function protectedRoutes(fastify, opts) {
     
-    const pay_mutex = new Mutex();
+    const pay_mutexes = new MutexManager();
 
     fastify.post('/me', {preHandler:requireAuth_404} , async function (request, reply) {
         reply.code(200);
@@ -61,7 +61,8 @@ const protectedRoutes: FastifyPluginAsyncTypebox = async function protectedRoute
             const startupRepository = AppDataSource.getRepository(Startup);
             const investmentRepository = AppDataSource.getRepository(Equity);
             
-            await pay_mutex.acquire();
+            let mutex_lock = pay_mutexes.getMutex(startup_id);
+            await mutex_lock.acquire();
 
             try {    
                 let [user, startup, investment] = await Promise.all([
@@ -70,14 +71,16 @@ const protectedRoutes: FastifyPluginAsyncTypebox = async function protectedRoute
                     investmentRepository.findOne({where: {user_id: request.user.id, startup_id: startup_id}})
                 ]);
 
+                
+                if (!startup) {
+                    reply.code(400);
+                    pay_mutexes.dropMutex(startup_id);
+                    return {error: 'Startup not found'};
+                }
+                
                 if (!user) {
                     reply.code(400);
                     return {error: 'User not found'};
-                }
-
-                if (!startup) {
-                    reply.code(400);
-                    return {error: 'Startup not found'};
                 }
 
                 if (user.balance < investment_amount) {
@@ -113,7 +116,7 @@ const protectedRoutes: FastifyPluginAsyncTypebox = async function protectedRoute
                 return {error: 'Payment failed'};
 
             } finally {
-                pay_mutex.release();
+                mutex_lock.release();
             }
         }
     })

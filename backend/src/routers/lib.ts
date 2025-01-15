@@ -27,4 +27,24 @@ export class Mutex {
             this.locked = false;
         }
     }
-  }
+}
+
+export class MutexManager {
+    
+    mutexes: Map<number, Mutex>;
+
+    constructor() {
+        this.mutexes = new Map();
+    }
+
+    getMutex(id: number): Mutex {
+        if (!this.mutexes.has(id)) {
+            this.mutexes.set(id, new Mutex());
+        }
+        return this.mutexes.get(id) as Mutex;
+    }
+
+    dropMutex(id: number) {
+        this.mutexes.delete(id);
+    }
+}
