@@ -2,22 +2,22 @@ import { FastifyInstance } from 'fastify';
 import { createLogger, format, transports } from 'winston';
 import { PapertrailTransport } from 'winston-papertrail-transport';
 
-const papertrail = new PapertrailTransport({
-    host: 'logs.papertrailapp.com',
-    port: Number.parseInt(process.env.PAPERTRAIL_PORT as string),
-    hostname: 'ecell-vmf',
-    program: 'app',
-    flushOnClose: true,
-    handleExceptions: true
-})
+// const papertrail = new PapertrailTransport({
+//     host: 'logs.papertrailapp.com',
+//     port: Number.parseInt(process.env.PAPERTRAIL_PORT as string),
+//     hostname: 'ecell-vmf',
+//     program: 'app',
+//     flushOnClose: true,
+//     handleExceptions: true
+// })
 
-papertrail.on('connect', function(message) {
-    console.log('Papertrail connected:', message);
-});
+// papertrail.on('connect', function(message) {
+//     console.log('Papertrail connected:', message);
+// });
 
-papertrail.on('error', function(err) {
-    console.error('Papertrail error:', err, err.message, err.name, err.stack);
-});
+// papertrail.on('error', function(err) {
+//     console.error('Papertrail error:', err, err.message, err.name, err.stack);
+// });
 
 export const logger = createLogger({
     format: format.combine(
@@ -65,7 +65,7 @@ export function attachLogger(server: FastifyInstance) {
     });
 
     process.on('SIGINT', async () => {
-        logger.crit('Application shutting down - SIGINT');
+        logger.warn('Application shutting down - SIGINT');
         await server.close();
         process.exit(0);
     });

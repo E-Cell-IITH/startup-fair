@@ -18,7 +18,7 @@ export class Equity {
     @CreateDateColumn()
     createdAt: Date;
 
-    @ManyToOne(() => User, user => user.investments)
+    @ManyToOne(() => User, user => user.investments, { onDelete: 'CASCADE' })
     @JoinColumn({ name: "user_id" })
     user: User;
 
@@ -28,7 +28,7 @@ export class Equity {
     @Column()
     user_id: number;
 
-    @ManyToOne(() => Startup, startup => startup.investments)
+    @ManyToOne(() => Startup, startup => startup.investments, { onDelete: 'CASCADE' })
     @JoinColumn({ name: "startup_id" })
     startup: Startup;
 

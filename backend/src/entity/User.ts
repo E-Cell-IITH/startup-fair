@@ -18,7 +18,7 @@ export class User {
   @Column()
   password: string;
 
-  @Column()
+  @Column({default: 1000})
   balance: number;
 
   @OneToMany(() => Equity, investment => investment.user)

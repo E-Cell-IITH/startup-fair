@@ -1,69 +1,60 @@
-import 'dotenv/config';
-import 'reflect-metadata';
-import { AppDataSource } from '../data-source';
-import { Equity } from '../entity/Investment';
-import { Startup } from '../entity/Startup';
+import GoogleSpreadsheet from 'public-google-sheets-parser';
 import { User } from '../entity/User';
+import { Startup } from '../entity/Startup';
+import { AppDataSource } from '../data-source';
+import { logger } from '../logging';
 
-AppDataSource.initialize().then(async () => {
+interface UserInfo {
+  name: string;
+  email: string;
+  password: string;
+}
 
-    console.log('Database Connected');
+interface StartupInfo {
+    name: string;
+    icon: string;
+    valuation: number;
+  }
 
-    const userRepository = AppDataSource.getRepository(User);
-    const startupRepository = AppDataSource.getRepository(Startup);
-    const investmentRepository = AppDataSource.getRepository(Equity);
+export async function fetchUsers(spreadsheetId: string): Promise<UserInfo[]> {
+    try {
+        const spreadsheet = new GoogleSpreadsheet(spreadsheetId, {sheetId: "0"});
+        const data = await spreadsheet.parse();
+        logger.info(`Fetched ${data.length} users`);
+        return data as UserInfo[];
 
-    await investmentRepository.delete({})
-    await userRepository.delete({})
-    await startupRepository.delete({})
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        return [];
 
-    const user1 = userRepository.create({
-        name: 'User A',
-        email: 'user.a@example.com',
-        password: 'password',
-        balance: 100
-    });
+    }
+}
 
-    const user2 = userRepository.create({
-        name: 'User B',
-        email: 'user.b@example.com',
-        password: 'password',
-        balance: 50
-    });
+export async function fetchStartups(spreadsheetId: string): Promise<StartupInfo[]> {
+    try {
+        const spreadsheet = new GoogleSpreadsheet(spreadsheetId, {"sheetName": "Startup"});
+        const data = await spreadsheet.parse();
+        logger.info(`Fetched ${data.length} startups`);
+        return data as StartupInfo[];
 
-    await userRepository.save([user1, user2]);
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        return [];
 
-    const startup1 = startupRepository.create({
-        name: 'Startup A',
-        icon: 'icon_a.png',
-        equity_sold: 0.2,
-        valuation: 1000
-    });
+    }
+}
 
-    const startup2 = startupRepository.create({
-        name: 'Startup B',
-        icon: 'icon_b.png',
-        equity_sold: 0,
-        valuation: 200
-    });
-
-    await startupRepository.save([startup1, startup2]);
-
-    const investment1 = investmentRepository.create({
-        amount: 20,
-        equity: 0.2
-    });
-    investment1.user = user2,
-    investment1.startup = startup1
-
-    // const investment2 = investmentRepository.create({
-    //     amount: 20,
-    // });
-    // investment2.user = user2,
-    // investment2.startup = startup2
-
-    await investmentRepository.save([investment1]);
-
-    await AppDataSource.destroy()
-
-})
+export async function seedDatabase() {
+    const usersRepository = AppDataSource.getRepository(User);
+    const startupsRepository = AppDataSource.getRepository(Startup);
+    const users = (await fetchUsers(process.env.GOOGLE_SHEET_ID as string))
+        .map(user => usersRepository.create(user));
+    const startups = (await fetchStartups(process.env.GOOGLE_SHEET_ID as string))
+        .map(startup => startupsRepository.create(startup));
+    
+    await AppDataSource.getRepository(User).delete({});
+    await AppDataSource.getRepository(User).save(users);
+    
+    await AppDataSource.getRepository(Startup).delete({});
+    await AppDataSource.getRepository(Startup).save(startups);
+}
