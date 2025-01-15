@@ -3,6 +3,7 @@ import { User } from '../entity/User';
 import { Startup } from '../entity/Startup';
 import { AppDataSource } from '../data-source';
 import { logger } from '../logging';
+import * as bcrypt from 'bcrypt';
 
 interface UserInfo {
   name: string;
@@ -47,8 +48,14 @@ export async function fetchStartups(spreadsheetId: string): Promise<StartupInfo[
 export async function seedDatabase() {
     const usersRepository = AppDataSource.getRepository(User);
     const startupsRepository = AppDataSource.getRepository(Startup);
-    const users = (await fetchUsers(process.env.GOOGLE_SHEET_ID as string))
-        .map(user => usersRepository.create(user));
+    
+    const users = (await fetchUsers(process.env.GOOGLE_SHEET_ID as string)).map(user => {
+        
+        user.password = bcrypt.hashSync(user.password, 10);
+
+        return usersRepository.create(user)
+    });
+    
     const startups = (await fetchStartups(process.env.GOOGLE_SHEET_ID as string))
         .map(startup => startupsRepository.create(startup));
     

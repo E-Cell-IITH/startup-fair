@@ -7,6 +7,7 @@ import { Startup } from "../entity/Startup";
 import { Equity } from "../entity/Investment";
 import { FastifyReply, FastifyRequest } from "fastify";
 import { Mutex, MutexManager } from "./lib";
+import * as bcrypt from 'bcrypt';
 
 var investment_valuation_increment = Number.parseInt(process.env.PER_INVESTMENT_VALUATION_INCREMENT as string)
 var investment_amount = Number.parseInt(process.env.PER_INVESTMENT_AMOUNT as string)
@@ -165,7 +166,7 @@ const addProtectedRoutes: FastifyPluginAsyncTypebox = async function addProtecte
             return {error: 'User with email does not exist'};
         }
 
-        if (user.password !== password) {
+        if (!bcrypt.compareSync(password, user.password)) {
             reply.code(401);
             return {error: 'Incorrect password'};
         }
