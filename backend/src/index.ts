@@ -5,6 +5,7 @@ import { AppDataSource } from './data-source';
 import { TypeBoxTypeProvider, TypeBoxValidatorCompiler } from '@fastify/type-provider-typebox';
 import addPublicRoutes from './routers/public';
 import addProtectedRoutes from './routers/protected';
+import { attachLogger, logger } from './logging';
 
 const server = fastify({ logger: {level: 'debug'} })
     .setValidatorCompiler(TypeBoxValidatorCompiler)
@@ -12,6 +13,7 @@ const server = fastify({ logger: {level: 'debug'} })
 
 server.register(addPublicRoutes, { prefix: '/api' });
 server.register(addProtectedRoutes, { prefix: '/api' });
+attachLogger(server);
 
 AppDataSource.initialize().then(async () => {
 
@@ -21,8 +23,9 @@ AppDataSource.initialize().then(async () => {
         if (err) {
             server.log.error(err);
             process.exit(1);
+        } else {
+            logger.info(`Server listening at ${address}`);
         }
-        // server.log.info(`Server listening on ${address}`);
     })
 
 })
