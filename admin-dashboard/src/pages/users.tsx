@@ -59,9 +59,11 @@ export default function UsersPage() {
 
   const [newUser, setNewUser] = useState({ name: '', email: '', password: '', balance: 0 })
   const [blockEmail, setBlockEmail] = useState('')
+  const [unblockEmail, setUnblockEmail] = useState('')
   const [searchTerm, setSearchTerm] = useState('')
   const [addUserOpen, setAddUserOpen] = useState(false)
   const [blockUserOpen, setBlockUserOpen] = useState(false)
+  const [unblockUserOpen, setUnblockUserOpen] = useState(false)
 
   useEffect(() => {
     const searchDelay = setTimeout(async () => setUsers(await fetchUsers(toast, searchTerm)), 1000)
@@ -90,7 +92,7 @@ export default function UsersPage() {
       } else {
         toast({
           title: 'Server Error',
-          description: 'An error occurred while updating the startup:\n' + (await response.json()).error,
+          description: 'An error occurred while adding the user:\n' + (await response.json()).error,
           variant: 'destructive',
           duration: 2500,
         })
@@ -98,7 +100,7 @@ export default function UsersPage() {
     }).catch((err) => {
       toast({
         title: 'Error',
-        description: 'An error occurred while updating the startup:\n' + err.message,
+        description: 'An error occurred while adding the user:\n' + err.message,
         variant: 'destructive',
         duration: 2500,
       })
@@ -129,7 +131,7 @@ export default function UsersPage() {
       } else {
         toast({
           title: 'Server Error',
-          description: 'An error occurred while updating the startup:\n' + await response.text(),
+          description: 'An error occurred while blocking the user:\n' + await response.text(),
           variant: 'destructive',
           duration: 2500,
         })
@@ -137,7 +139,7 @@ export default function UsersPage() {
     }).catch((err) => {
       toast({
         title: 'Error',
-        description: 'An error occurred while updating the startup:\n' + err.message,
+        description: 'An error occurred while blocking the user:\n' + err.message,
         variant: 'destructive',
         duration: 2500,
       })
@@ -154,6 +156,46 @@ export default function UsersPage() {
       user.email.toLowerCase().includes(searchTerm.toLowerCase())
     )
   }, [users, searchTerm])
+
+  const handleUnblockUser = (e: React.FormEvent) => {
+    e.preventDefault()
+
+    fetch(`http://localhost:8080/api/admin/unblock`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({email: unblockEmail}),
+      credentials: 'include'
+    }).then(async response => {
+      if (response.ok) {
+        toast({
+          title: 'Success',
+          description: 'The user has been unblocked successfully',
+          variant: 'default',
+          duration: 2500,
+        })
+      } else {
+        toast({
+          title: 'Server Error',
+          description: 'An error occurred while unblocking the user:\n' + await response.text(),
+          variant: 'destructive',
+          duration: 2500,
+        })
+      }
+    }).catch((err) => {
+      toast({
+        title: 'Error',
+        description: 'An error occurred while unblocking the user:\n' + err.message,
+        variant: 'destructive',
+        duration: 2500,
+      })
+      console.log(err)
+    })
+
+    setUnblockEmail('')
+    setUnblockUserOpen(false);
+  }
 
   return (
     <div className="space-y-6 max-w-[80vw] min-w-[1024px] mx-auto">
@@ -219,6 +261,31 @@ export default function UsersPage() {
                         />
                       </div>
                       <Button onClick={handleAddUser}>Add User</Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+
+                <Dialog open={unblockUserOpen} onOpenChange={setUnblockUserOpen}>
+                  <DialogTrigger asChild>
+                    <Button>Unblock User</Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Unblock a User</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div>
+                        <p className='my-4 text-red-600'>This will restore the user's ability to make payments.</p>
+                        <Label htmlFor="unblockEmail">Email</Label>
+                        <Input
+                          type="email"
+                          id="unblockEmail"
+                          value={unblockEmail}
+                          onChange={(e) => setUnblockEmail(e.target.value)}
+                          required
+                        />
+                      </div>
+                      <Button className="mx-auto" onClick={handleUnblockUser}>Unblock User</Button>
                     </div>
                   </DialogContent>
                 </Dialog>

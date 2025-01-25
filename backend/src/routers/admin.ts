@@ -112,7 +112,7 @@ const addAdminRoutes: FastifyPluginAsyncTypebox = async function addAdminRoutes(
         handler: async function (request, reply) {
             const userRepository = AppDataSource.getRepository(User);
             const users = await userRepository.createQueryBuilder()
-                .where('name LIKE :search OR email LIKE :search', {search: `%${request.query.search}%`})
+                .where('name ILIKE :search OR email LIKE :search', {search: `%${request.query.search}%`})
                 .orderBy('name', 'ASC')
                 .limit(25)
                 .getMany();
