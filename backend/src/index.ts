@@ -9,6 +9,7 @@ import { attachLogger, logger } from './logging.js';
 import { seedDatabase } from './utils/seed_db.js';
 import cors from '@fastify/cors'
 import { attachStats } from './routers/lib.js';
+import addFrontendRoutes from './routers/frontend.js';
 
 const server = fastify({ logger: {level: 'debug'} })
     .setValidatorCompiler(TypeBoxValidatorCompiler)
@@ -21,6 +22,11 @@ server.register(cors, {
 
 server.register(addPublicRoutes, { prefix: '/api' });
 server.register(addProtectedRoutes, { prefix: '/api' });
+server.register(addFrontendRoutes)
+server.register(import('@fastify/rate-limit'), {
+    max: 60,
+    timeWindow: '1 minute'
+})
 attachLogger(server);
 attachStats(server);
 

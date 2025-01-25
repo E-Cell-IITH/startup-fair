@@ -4,9 +4,10 @@ import fs from 'fs';
 import path from 'path';
 
 export default async function addFrontendRoutes(fastify: FastifyInstance, options: any) {
-    // const student_frontend = fs.readFileSync('./dist/student-frontend/index.html')
-    // const admin_frontend = fs.readFileSync('../admin-frontend/dist/index.html')
-    // await fastify.register(fastifyStatic, { root: path.join(import.meta.dirname, '../dist'), prefix: '/public/admin_portal' })
+    const frontend_index = fs.readFileSync('./dist/index.html')
+    await fastify.register(fastifyStatic, { root: path.join(path.resolve('.'), './dist'), prefix: '/public' })
 
-    // fastify.get('/admin_portal/*', (request, reply) => { reply.code(200).type('text/html').send( admin_frontend )})
+    fastify.setNotFoundHandler((request, reply) => { 
+        reply.code(200).type('text/html').send( frontend_index )
+    })
 }
