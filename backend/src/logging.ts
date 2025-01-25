@@ -2,33 +2,36 @@ import { FastifyInstance } from 'fastify';
 import { createLogger, format, transports } from 'winston';
 import { PapertrailTransport } from 'winston-papertrail-transport';
 
-// const papertrail = new PapertrailTransport({
-//     host: 'logs.papertrailapp.com',
-//     port: Number.parseInt(process.env.PAPERTRAIL_PORT as string),
-//     hostname: 'ecell-vmf',
-//     program: 'app',
-//     flushOnClose: true,
-//     handleExceptions: true
-// })
+let papertrail = null;
 
-// papertrail.on('connect', function(message) {
-//     console.log('Papertrail connected:', message);
-// });
-
-// papertrail.on('error', function(err) {
-//     console.error('Papertrail error:', err, err.message, err.name, err.stack);
-// });
+if (process.env.LOG_TO_PAPERTRAIL === 'true') {
+    papertrail = new PapertrailTransport({
+        host: 'logs.papertrailapp.com',
+        port: Number.parseInt(process.env.PAPERTRAIL_PORT as string),
+        hostname: 'ecell-vmf',
+        program: 'app',
+        flushOnClose: true,
+        handleExceptions: true
+    })
+    
+    papertrail.on('connect', function(message) {
+        console.log('Papertrail connected:', message);
+    });
+    
+    papertrail.on('error', function(err) {
+        console.error('Papertrail error:', err, err.message, err.name, err.stack);
+    });
+}
 
 export const logger = createLogger({
     format: format.combine(
         format.timestamp(),
         format.json()
     ),
-    transports: [
+    transports: Array.prototype.concat([
         new transports.Console({ format: format.colorize() }),// TODO: Might remove this
         new transports.File({ filename: 'logs/combined.log' }), // TODO: Might remove this
-        // papertrail
-    ]
+    ], (papertrail != null ? [papertrail] : []))
 });
 
 export function attachLogger(server: FastifyInstance) {

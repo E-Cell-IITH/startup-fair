@@ -1,6 +1,6 @@
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, RelationId } from "typeorm";
-import { Startup, StartupSchema } from "./Startup";
-import { User, UserSchema } from "./User";
+import { Startup } from "./Startup.js";
+import { User } from "./User.js";
 import { Type, Static } from "@sinclair/typebox";
 
 @Entity()
@@ -18,7 +18,7 @@ export class Equity {
     @CreateDateColumn()
     createdAt: Date;
 
-    @ManyToOne(() => User, user => user.investments, { onDelete: 'CASCADE' })
+    @ManyToOne("User", "investments", { onDelete: 'CASCADE' })
     @JoinColumn({ name: "user_id" })
     user: User;
 
@@ -28,7 +28,7 @@ export class Equity {
     @Column()
     user_id: number;
 
-    @ManyToOne(() => Startup, startup => startup.investments, { onDelete: 'CASCADE' })
+    @ManyToOne("Startup", "investments", { onDelete: 'CASCADE' })
     @JoinColumn({ name: "startup_id" })
     startup: Startup;
 
