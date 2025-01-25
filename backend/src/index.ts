@@ -8,6 +8,7 @@ import addProtectedRoutes from './routers/protected.js';
 import { attachLogger, logger } from './logging.js';
 import { seedDatabase } from './utils/seed_db.js';
 import cors from '@fastify/cors'
+import { attachStats } from './routers/lib.js';
 
 const server = fastify({ logger: {level: 'debug'} })
     .setValidatorCompiler(TypeBoxValidatorCompiler)
@@ -21,6 +22,7 @@ server.register(cors, {
 server.register(addPublicRoutes, { prefix: '/api' });
 server.register(addProtectedRoutes, { prefix: '/api' });
 attachLogger(server);
+attachStats(server);
 
 AppDataSource.initialize().then(async () => {
 

@@ -6,7 +6,7 @@ import fastifyCookie from "@fastify/cookie";
 import { Startup } from "../entity/Startup.js";
 import { Equity } from "../entity/Investment.js";
 import { FastifyReply, FastifyRequest } from "fastify";
-import { Mutex, MutexManager } from "./lib.js";
+import { GlobalStats, Mutex, MutexManager } from "./lib.js";
 import * as bcrypt from 'bcrypt';
 import addAdminRoutes from "./admin.js";
 
@@ -176,6 +176,8 @@ const addProtectedRoutes: FastifyPluginAsyncTypebox = async function addProtecte
                 await userRepository.save(user);
                 await startupRepository.save(startup);
 
+                GlobalStats.next_recent_payments += 1;
+                GlobalStats.payments += 1;
                 reply.code(200);
                 return {message: 'Payment successful'};
 

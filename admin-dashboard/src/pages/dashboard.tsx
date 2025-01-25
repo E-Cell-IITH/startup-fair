@@ -77,7 +77,7 @@ export default function StatisticsPage() {
         </CardHeader>
         <CardContent>
           <p className={`text-2xl font-bold ${getColorClass(stats.avgResponseTime, [100, 200, 250])}`}>
-            {stats.avgResponseTime}ms
+            {stats.avgResponseTime.toFixed(2)}ms
           </p>
         </CardContent>
       </Card>
@@ -87,7 +87,7 @@ export default function StatisticsPage() {
         </CardHeader>
         <CardContent>
           <p className={`text-2xl font-bold ${getColorClass(stats.maxResponseTime, [100, 200, 250])}`}>
-            {stats.maxResponseTime}ms
+            {stats.maxResponseTime.toFixed(2)}ms
           </p>
         </CardContent>
       </Card>

@@ -4,6 +4,7 @@ import { User, UserSchema, UserType } from "../entity/User.js";
 import { AppDataSource } from "../data-source.js";
 import { Startup, StartupSchema, StartupType } from "../entity/Startup.js";
 import * as bcrypt from 'bcrypt';
+import { GlobalStats } from "./lib.js";
 
 const requireAdmin = async (request: FastifyRequest, reply: FastifyReply) => {
     if (!request.cookies || !request.cookies.auth_token) {
@@ -172,7 +173,7 @@ const addAdminRoutes: FastifyPluginAsyncTypebox = async function addAdminRoutes(
                 reply.code(400);
                 return (e as Error).message;
             }
-
+            GlobalStats.users++;
             reply.code(200);
             return;
         }
@@ -279,13 +280,7 @@ const addAdminRoutes: FastifyPluginAsyncTypebox = async function addAdminRoutes(
         preHandler: requireAdmin,
         handler: async function (request, reply) {
             reply.code(200)
-            return {
-                users: 1000,
-                payments: 200,
-                recent_payments: 20,
-                average_response_time: Math.round((Math.random() * 250)),
-                max_response_time: 200
-            }
+            return GlobalStats;
         }
     })
 }
