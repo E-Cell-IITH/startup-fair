@@ -1,5 +1,5 @@
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, RelationId, Unique } from "typeorm";
-import { Equity, EquitySchema } from "./Investment";
+import { Equity, EquitySchema } from "./Investment.js";
 import { Static, Type } from "@sinclair/typebox";
 
 @Entity()
@@ -21,7 +21,7 @@ export class User {
   @Column({default: 1000})
   balance: number;
 
-  @OneToMany(() => Equity, investment => investment.user)
+  @OneToMany("Equity", "user")
   investments: Equity[];
 
   @RelationId((user: User) => user.investments)
@@ -30,6 +30,12 @@ export class User {
   @CreateDateColumn()
   created_at: Date;
   
+  @Column({default: false})
+  isAdmin: boolean;
+
+  @Column({default: false})
+  isBlocked: boolean;
+
   // Not a column
   net_worth?: number;
 }

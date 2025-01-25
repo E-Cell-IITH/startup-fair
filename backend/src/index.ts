@@ -1,16 +1,22 @@
 import 'dotenv/config';
 import 'reflect-metadata';
 import fastify from 'fastify';
-import { AppDataSource } from './data-source';
+import { AppDataSource } from './data-source.js';
 import { TypeBoxTypeProvider, TypeBoxValidatorCompiler } from '@fastify/type-provider-typebox';
-import addPublicRoutes from './routers/public';
-import addProtectedRoutes from './routers/protected';
-import { attachLogger, logger } from './logging';
-import { seedDatabase } from './utils/seed_db';
+import addPublicRoutes from './routers/public.js';
+import addProtectedRoutes from './routers/protected.js';
+import { attachLogger, logger } from './logging.js';
+import { seedDatabase } from './utils/seed_db.js';
+import cors from '@fastify/cors'
 
 const server = fastify({ logger: {level: 'debug'} })
     .setValidatorCompiler(TypeBoxValidatorCompiler)
     .withTypeProvider<TypeBoxTypeProvider>();
+
+server.register(cors, {
+    origin: process.env.ADMIN_ORIGIN,
+    credentials: true
+})
 
 server.register(addPublicRoutes, { prefix: '/api' });
 server.register(addProtectedRoutes, { prefix: '/api' });

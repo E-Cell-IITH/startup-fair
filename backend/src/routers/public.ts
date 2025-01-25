@@ -1,7 +1,7 @@
 import { FastifyPluginAsyncTypebox, Type } from "@fastify/type-provider-typebox";
-import { ExtendedUserSchema, ExtendedUserType, User, UserSchema, UserType } from "../entity/User";
-import { Startup, StartupSchema, StartupType } from "../entity/Startup";
-import { AppDataSource } from "../data-source";
+import { ExtendedUserSchema, ExtendedUserType, User, UserSchema, UserType } from "../entity/User.js";
+import { Startup, StartupSchema, StartupType } from "../entity/Startup.js";
+import { AppDataSource } from "../data-source.js";
 
 const plugin: FastifyPluginAsyncTypebox = async function addPublicRoutes(fastify, _opts) {
     

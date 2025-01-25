@@ -1,8 +1,8 @@
 import GoogleSpreadsheet from 'public-google-sheets-parser';
-import { User } from '../entity/User';
-import { Startup } from '../entity/Startup';
-import { AppDataSource } from '../data-source';
-import { logger } from '../logging';
+import { User } from '../entity/User.js';
+import { Startup } from '../entity/Startup.js';
+import { AppDataSource } from '../data-source.js';
+import { logger } from '../logging.js';
 import * as bcrypt from 'bcrypt';
 
 interface UserInfo {
@@ -19,6 +19,7 @@ interface StartupInfo {
 
 export async function fetchUsers(spreadsheetId: string): Promise<UserInfo[]> {
     try {
+        //@ts-ignore
         const spreadsheet = new GoogleSpreadsheet(spreadsheetId, {sheetId: "0"});
         const data = await spreadsheet.parse();
         logger.info(`Fetched ${data.length} users`);
@@ -33,6 +34,7 @@ export async function fetchUsers(spreadsheetId: string): Promise<UserInfo[]> {
 
 export async function fetchStartups(spreadsheetId: string): Promise<StartupInfo[]> {
     try {
+        //@ts-ignore
         const spreadsheet = new GoogleSpreadsheet(spreadsheetId, {"sheetName": "Startup"});
         const data = await spreadsheet.parse();
         logger.info(`Fetched ${data.length} startups`);

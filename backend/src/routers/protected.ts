@@ -1,13 +1,14 @@
 import { FastifyPluginAsyncTypebox, Type } from "@fastify/type-provider-typebox";
-import { User, UserSchema, UserType } from "../entity/User";
-import { AppDataSource } from "../data-source";
+import { User, UserSchema, UserType } from "../entity/User.js";
+import { AppDataSource } from "../data-source.js";
 import fastifyJwt, { FastifyJWTOptions } from "@fastify/jwt";
 import fastifyCookie from "@fastify/cookie";
-import { Startup } from "../entity/Startup";
-import { Equity } from "../entity/Investment";
+import { Startup } from "../entity/Startup.js";
+import { Equity } from "../entity/Investment.js";
 import { FastifyReply, FastifyRequest } from "fastify";
-import { Mutex, MutexManager } from "./lib";
+import { Mutex, MutexManager } from "./lib.js";
 import * as bcrypt from 'bcrypt';
+import addAdminRoutes from "./admin.js";
 
 var investment_valuation_increment = Number.parseInt(process.env.PER_INVESTMENT_VALUATION_INCREMENT as string)
 var investment_amount = Number.parseInt(process.env.PER_INVESTMENT_AMOUNT as string)
@@ -29,9 +30,75 @@ const requireAuth_404 = async (request: FastifyRequest, reply: FastifyReply) => 
     await request.jwtVerify({onlyCookie: true});
 }
 
-const protectedRoutes: FastifyPluginAsyncTypebox = async function protectedRoutes(fastify, opts) {
+const addProtectedRoutes: FastifyPluginAsyncTypebox = async function addProtectedRoutes(fastify, opts) {
     
+    if (!process.env.JWT_SECRET) {
+        throw new Error('JWT_SECRET is not set');
+    }
+
+    await fastify.register(fastifyCookie);
+    await fastify.register(fastifyJwt, {
+        secret: process.env.JWT_SECRET as string,
+        cookie: {
+            cookieName: 'auth_token',
+            signed: false
+        },
+        
+    } as FastifyJWTOptions);
+
     const pay_mutexes = new MutexManager();
+
+    fastify.post('/login', {
+        schema: {
+            body: Type.Object({
+                email: Type.String(),
+                password: Type.String()
+            }),
+            response: {
+                200: UserSchema,
+                400: Type.Object({
+                    error: Type.String()
+                }),
+                401: Type.Object({
+                    error: Type.String()
+                })
+            }
+        }
+    }, async function (request, reply) {
+        const { email, password } = request.body as { email: string, password: string };
+
+        const userRepository = AppDataSource.getRepository(User);
+        const user = await userRepository.findOne({where: {email}});
+
+        if (!user) {
+            reply.code(400);
+            return {error: 'User with email does not exist'};
+        }
+
+        if (!bcrypt.compareSync(password, user.password)) {
+            reply.code(401);
+            return {error: 'Incorrect password'};
+        }
+
+        if (user.isBlocked) {
+            reply.code(401);
+            return {error: 'User is blocked'};
+        }
+
+        const token = fastify.jwt.sign({id: user.id, name: user.name, isAdmin: user.isAdmin});
+        reply.setCookie('auth_token', token, {
+            sameSite: 'lax', //TODO: Change
+            httpOnly: true,
+            secure: false, //process.env.NODE_ENV === 'production',
+        });
+        reply.code(200);
+        return user as unknown as UserType;
+    });
+
+    fastify.post('/logout', function (request, reply) {
+        reply.setCookie('auth_token', '', {expires: new Date(0)});
+        reply.redirect('/login');
+    })
 
     fastify.post('/me', {preHandler:requireAuth_404} , async function (request, reply) {
         reply.code(200);
@@ -72,16 +139,17 @@ const protectedRoutes: FastifyPluginAsyncTypebox = async function protectedRoute
                     investmentRepository.findOne({where: {user_id: request.user.id, startup_id: startup_id}})
                 ]);
 
-                
+                if (!user || user.isBlocked) {
+                    if (!startup) pay_mutexes.dropMutex(startup_id);
+                    if (user) reply.setCookie('auth_token', '', {expires: new Date(0)});
+                    reply.code(400);
+                    return {error: 'User not found'};
+                }
+
                 if (!startup) {
                     reply.code(400);
                     pay_mutexes.dropMutex(startup_id);
                     return {error: 'Startup not found'};
-                }
-                
-                if (!user) {
-                    reply.code(400);
-                    return {error: 'User not found'};
                 }
 
                 if (user.balance < investment_amount) {
@@ -121,72 +189,8 @@ const protectedRoutes: FastifyPluginAsyncTypebox = async function protectedRoute
             }
         }
     })
-}
 
-const addProtectedRoutes: FastifyPluginAsyncTypebox = async function addProtectedRoutes(fastify, opts) {
-    
-    if (!process.env.JWT_SECRET) {
-        throw new Error('JWT_SECRET is not set');
-    }
-
-    await fastify.register(fastifyCookie);
-    await fastify.register(fastifyJwt, {
-        secret: process.env.JWT_SECRET as string,
-        cookie: {
-            cookieName: 'auth_token',
-            signed: false
-        },
-        
-    } as FastifyJWTOptions);
-
-    fastify.post('/login', {
-        schema: {
-            body: Type.Object({
-                email: Type.String(),
-                password: Type.String()
-            }),
-            response: {
-                200: UserSchema,
-                400: Type.Object({
-                    error: Type.String()
-                }),
-                401: Type.Object({
-                    error: Type.String()
-                })
-            }
-        }
-    }, async function (request, reply) {
-        const { email, password } = request.body as { email: string, password: string };
-
-        const userRepository = AppDataSource.getRepository(User);
-        const user = await userRepository.findOne({where: {email}});
-
-        if (!user) {
-            reply.code(400);
-            return {error: 'User with email does not exist'};
-        }
-
-        if (!bcrypt.compareSync(password, user.password)) {
-            reply.code(401);
-            return {error: 'Incorrect password'};
-        }
-
-        const token = fastify.jwt.sign({id: user.id, name: user.name});
-        reply.setCookie('auth_token', token, {
-            sameSite: 'lax',
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-        });
-        reply.code(200);
-        return user as unknown as UserType;
-    });
-
-    fastify.get('/logout', function (request, reply) {
-        reply.setCookie('auth_token', '', {expires: new Date(0)});
-        reply.redirect('/login');
-    })
-
-    await fastify.register(protectedRoutes);
+    fastify.register(addAdminRoutes, {prefix: '/admin'});
 }
 
 export default addProtectedRoutes;
