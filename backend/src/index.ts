@@ -8,7 +8,7 @@ import addProtectedRoutes from './routers/protected.js';
 import { attachLogger, logger } from './logging.js';
 import { seedDatabase } from './utils/seed_db.js';
 import cors from '@fastify/cors'
-import { attachStats } from './routers/lib.js';
+import { attachCache, attachStats } from './routers/lib.js';
 import { createAdmin } from './utils/create_admin.js';
 
 const server = fastify({ logger: {level: 'debug'} })
@@ -28,6 +28,7 @@ server.register(import('@fastify/rate-limit'), {
 })
 attachLogger(server);
 attachStats(server);
+attachCache(server);
 
 AppDataSource.initialize().then(async () => {
 

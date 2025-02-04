@@ -2,6 +2,7 @@ import { FastifyPluginAsyncTypebox, Type } from "@fastify/type-provider-typebox"
 import { ExtendedUserSchema, ExtendedUserType, User, UserSchema, UserType } from "../entity/User.js";
 import { Startup, StartupSchema, StartupType } from "../entity/Startup.js";
 import { AppDataSource } from "../data-source.js";
+import { leaderboardCache } from "./lib.js";
 
 const plugin: FastifyPluginAsyncTypebox = async function addPublicRoutes(fastify, _opts) {
     
@@ -17,21 +18,8 @@ const plugin: FastifyPluginAsyncTypebox = async function addPublicRoutes(fastify
       }
     },
     handler: async function (request, reply) {
-      const userRepository = AppDataSource.getRepository(User);
-      const users = await userRepository.createQueryBuilder('user')
-        .select('user.id', 'id')
-        .addSelect('user.name', 'name')
-        .innerJoin('user.investments', 'investment')
-        .innerJoin('investment.startup', 'startup')
-        .groupBy('user.id')
-        .addSelect('COALESCE(SUM(investment.equity * startup.valuation), 0) + user.balance', 'net_worth')
-        .orderBy('net_worth', 'DESC')
-        .offset(request.query.from)
-        .limit(25)
-        .getRawMany()
-
       reply.code(200);
-      return users as unknown as UserType[];
+      return (await leaderboardCache.get(request.query.from));
     }
   })
   

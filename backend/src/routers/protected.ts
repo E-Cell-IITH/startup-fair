@@ -87,7 +87,7 @@ const addProtectedRoutes: FastifyPluginAsyncTypebox = async function addProtecte
 
         const token = fastify.jwt.sign({id: user.id, name: user.name, isAdmin: user.isAdmin});
         reply.setCookie('auth_token', token, {
-            sameSite: 'lax', //TODO: Change
+            sameSite: 'lax',
             httpOnly: true,
             secure: false, //process.env.NODE_ENV === 'production',
         });

@@ -1,6 +1,6 @@
 import { FastifyInstance, FastifyReply } from "fastify";
 import { AppDataSource } from "../data-source";
-import { User } from "../entity/User";
+import { User, UserType } from "../entity/User";
 import { Equity } from "../entity/Investment";
 
 export class Mutex {
@@ -94,5 +94,54 @@ export function attachStats(server: FastifyInstance) {
 
         GlobalStats.users = await userRepository.count();
         GlobalStats.payments = await equityRepository.count();
+    })
+}
+
+class UserLeaderboardCache {
+    cache: UserType[];
+    cache_first_page: UserType[];
+    lastUpdate: number;
+    updatePromise: Promise<void> | null;
+
+    constructor() {
+        this.cache = [];
+        this.cache_first_page = [];
+        this.lastUpdate = 0;
+        this.updatePromise = null;
+    }
+
+    async update() {
+        if (this.updatePromise) return this.updatePromise;
+        
+        const userRepository = AppDataSource.getRepository(User);
+        this.updatePromise = userRepository.createQueryBuilder('user')
+            .select('user.id', 'id')
+            .addSelect('user.name', 'name')
+            .innerJoin('user.investments', 'investment')
+            .innerJoin('investment.startup', 'startup')
+            .groupBy('user.id')
+            .addSelect('COALESCE(SUM(investment.equity * startup.valuation), 0) + user.balance', 'net_worth')
+            .orderBy('net_worth', 'DESC')
+            .getRawMany().then((users) => {
+                this.cache = users;
+                this.cache_first_page = this.cache.slice(0, 25);
+                this.lastUpdate = Date.now();
+                this.updatePromise = null;
+        });
+
+        return this.updatePromise;
+    }
+
+    async get(from: number) {
+        if (Date.now() - this.lastUpdate > 1000*10) await this.update(); // Cache remains valid for atleast ~10 seconds, and updates when someone requests after cache.
+        return from==0 ? this.cache_first_page : this.cache.slice(from, from+25);
+    }
+}
+
+export var leaderboardCache = new UserLeaderboardCache();
+
+export function attachCache(server: FastifyInstance) {
+    server.addHook('onReady', async () => {
+        leaderboardCache.update();
     })
 }
