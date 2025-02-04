@@ -9,7 +9,7 @@ import { attachLogger, logger } from './logging.js';
 import { seedDatabase } from './utils/seed_db.js';
 import cors from '@fastify/cors'
 import { attachStats } from './routers/lib.js';
-import addFrontendRoutes from './routers/frontend.js';
+import { createAdmin } from './utils/create_admin.js';
 
 const server = fastify({ logger: {level: 'debug'} })
     .setValidatorCompiler(TypeBoxValidatorCompiler)
@@ -22,7 +22,6 @@ server.register(cors, {
 
 server.register(addPublicRoutes, { prefix: '/api' });
 server.register(addProtectedRoutes, { prefix: '/api' });
-server.register(addFrontendRoutes)
 server.register(import('@fastify/rate-limit'), {
     max: 60,
     timeWindow: '1 minute'
@@ -38,6 +37,8 @@ AppDataSource.initialize().then(async () => {
         await seedDatabase();
         logger.info('Database Seeding complete');
         process.exit(0);
+    } else if (process.argv.includes('--create-admin')) {
+        process.exit(await createAdmin())
     }
 
     server.listen({ port: 6969 }, (err, address) => {
