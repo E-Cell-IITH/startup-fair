@@ -18,7 +18,7 @@ function fetchUsers(toast: any, searchTerm: string) {
     return Promise.resolve([])
   }
 
-  return fetch('https://sf-api.ecelliith.org.in/admin/api/admin/user?' + new URLSearchParams({
+  return fetch(`${import.meta.env.VITE_BACKEND_URL}/api/admin/user?` + new URLSearchParams({
     search: searchTerm
   }).toString(), {
     method: 'GET',
@@ -74,7 +74,7 @@ export default function UsersPage() {
   const handleAddUser = (e: React.FormEvent) => {
     e.preventDefault()
 
-    fetch('https://sf-api.ecelliith.org.in/admin/api/admin/user', {
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/admin/user`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -113,7 +113,7 @@ export default function UsersPage() {
   const handleBlockUser = (e: React.FormEvent) => {
     e.preventDefault()
 
-    fetch(`https://sf-api.ecelliith.org.in/admin/api/admin/block`, {
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/admin/block`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -160,7 +160,7 @@ export default function UsersPage() {
   const handleUnblockUser = (e: React.FormEvent) => {
     e.preventDefault()
 
-    fetch(`https://sf-api.ecelliith.org.in/admin/api/admin/unblock`, {
+    fetch(`${import.meta.env.VITE_BACKEND_URL}/api/admin/unblock`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

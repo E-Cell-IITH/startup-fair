@@ -15,7 +15,7 @@ export default function LoginForm() {
     e.preventDefault()
     // Make an API call to the backend to authenticate the user
   
-    await fetch('https://sf-api.ecelliith.org.in/admin/api/login', {
+    await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/login`, {
       credentials: 'include',
       method: 'POST',
       headers: {
