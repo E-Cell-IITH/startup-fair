@@ -1,8 +1,9 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn, Unique } from "typeorm";
 import { Equity } from "./Investment.js";
 import { Type, Static } from "@sinclair/typebox";
 
 @Entity()
+@Unique(["name"])
 export class Startup {
 
   @PrimaryGeneratedColumn()

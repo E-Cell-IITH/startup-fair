@@ -9,6 +9,7 @@ interface UserInfo {
   name: string;
   email: string;
   password: string;
+  balance: number;
 }
 
 interface StartupInfo {
@@ -61,9 +62,9 @@ export async function seedDatabase() {
     const startups = (await fetchStartups(process.env.GOOGLE_SHEET_ID as string))
         .map(startup => startupsRepository.create(startup));
     
-    await AppDataSource.getRepository(User).delete({});
-    await AppDataSource.getRepository(User).save(users);
+    // await AppDataSource.getRepository(User).delete({});
+    await AppDataSource.getRepository(User).upsert(users, ['email']);
     
-    await AppDataSource.getRepository(Startup).delete({});
-    await AppDataSource.getRepository(Startup).save(startups);
+    // await AppDataSource.getRepository(Startup).delete({});
+    await AppDataSource.getRepository(Startup).upsert(startups, ['name']);
 }
