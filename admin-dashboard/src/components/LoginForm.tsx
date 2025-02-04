@@ -15,7 +15,7 @@ export default function LoginForm() {
     e.preventDefault()
     // Make an API call to the backend to authenticate the user
   
-    await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/admin/login`, {
+    await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/login`, {
       credentials: 'include',
       method: 'POST',
       headers: {
