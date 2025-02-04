@@ -24,7 +24,7 @@ export default function StartupsPage() {
   const {toast} = useToast()
 
   useEffect(() => {
-    fetch('http://localhost:8080/api/startup', {
+    fetch('https://sf-api.ecelliith.org.in/admin/api/startup', {
       method: 'GET',
       credentials: 'include',
     }).then(async response => {
@@ -60,7 +60,7 @@ export default function StartupsPage() {
   const handleSaveEdit = () => {
     if (editingStartup) {
 
-      fetch(`http://localhost:8080/api/admin/startup/${editingStartup.id}`, {
+      fetch(`https://sf-api.ecelliith.org.in/admin/api/admin/startup/${editingStartup.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -101,7 +101,7 @@ export default function StartupsPage() {
 
   const handleAddStartup = () => {
 
-    fetch('http://localhost:8080/api/admin/startup', {
+    fetch('https://sf-api.ecelliith.org.in/admin/api/admin/startup', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

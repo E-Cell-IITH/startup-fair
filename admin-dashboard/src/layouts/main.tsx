@@ -14,7 +14,7 @@ export default function DashboardLayout() {
   ]
 
   function handleLogout() {
-    fetch('http://localhost:8080/api/logout', {
+    fetch('https://sf-api.ecelliith.org.in/admin/api/logout', {
       method: 'POST'
     }).then(() => {
       navigate('/login')

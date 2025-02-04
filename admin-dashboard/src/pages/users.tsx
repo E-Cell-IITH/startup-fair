@@ -18,7 +18,7 @@ function fetchUsers(toast: any, searchTerm: string) {
     return Promise.resolve([])
   }
 
-  return fetch('http://localhost:8080/api/admin/user?' + new URLSearchParams({
+  return fetch('https://sf-api.ecelliith.org.in/admin/api/admin/user?' + new URLSearchParams({
     search: searchTerm
   }).toString(), {
     method: 'GET',
@@ -74,7 +74,7 @@ export default function UsersPage() {
   const handleAddUser = (e: React.FormEvent) => {
     e.preventDefault()
 
-    fetch('http://localhost:8080/api/admin/user', {
+    fetch('https://sf-api.ecelliith.org.in/admin/api/admin/user', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -113,7 +113,7 @@ export default function UsersPage() {
   const handleBlockUser = (e: React.FormEvent) => {
     e.preventDefault()
 
-    fetch(`http://localhost:8080/api/admin/block`, {
+    fetch(`https://sf-api.ecelliith.org.in/admin/api/admin/block`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -160,7 +160,7 @@ export default function UsersPage() {
   const handleUnblockUser = (e: React.FormEvent) => {
     e.preventDefault()
 
-    fetch(`http://localhost:8080/api/admin/unblock`, {
+    fetch(`https://sf-api.ecelliith.org.in/admin/api/admin/unblock`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
