@@ -1,17 +1,7 @@
-import { AppBar, Toolbar, Button, Typography, Box, CardContent, Container, Grid } from '@mui/material';
+import { AppBar, Toolbar, Typography, Box, CardContent, Container, Grid } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
-
-const GradientButton = styled(Button)(({ theme }) => ({
-  backgroundColor: '#FF8C00',
-  color: 'white',
-  '&:hover': {
-    backgroundColor: '#e67e00',
-  },
-  padding: '10px 20px',
-  borderRadius: '4px',
-  textTransform: 'uppercase',
-}));
+import GradientButton from '../components/GradientButton';
 
 const HeroSection = styled(Box)(({ theme }) => ({
   backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), rgba(0, 0, 0, 0.5))`,
@@ -100,6 +90,9 @@ const HomePage = () => {
               justifyContent: { xs: 'center', sm: 'flex-end' },
             }}
           >
+            <GradientButton variant="contained" onClick={() => navigate('/leaderboard')}>Leaderboard</GradientButton>
+            <GradientButton variant="contained" onClick={() => navigate('/user-leaderboard')}>Top Users</GradientButton>
+            <GradientButton variant="contained" onClick={() => navigate('/portfolio')}>Portfolio</GradientButton>
             <GradientButton variant="contained" onClick={() => navigate('/login')}>LOG IN</GradientButton>
           </Box>
         </Toolbar>
@@ -125,7 +118,7 @@ const HomePage = () => {
         >
           Join us to explore innovative startups and connect with like-minded entrepreneurs.
         </Typography>
-        <GradientButton size="large">SIGN UP FREE</GradientButton>
+        <GradientButton size="large" onClick={() => navigate('/login')}>LOG IN</GradientButton>
       </HeroSection>
       <Container sx={{ mt: 5, position: 'relative', zIndex: 1 }}>
         <Grid container spacing={4}>

@@ -5,16 +5,14 @@ import config from '../config.json'
 import GradientButton from '../components/GradientButton'
 import { useNavigate } from 'react-router-dom'
 
-interface LeaderboardEntry {
+interface UserLeaderboardData {
   id: number
   name: string
-  icon: string
-  equity_sold: number
-  valuation: number
+  net_worth: number
 }
 
-const Leaderboard = () => {
-  const [leaderboardData, setLeaderboardData] = useState<LeaderboardEntry[]>([])
+const UserLeaderboard = () => {
+  const [leaderboardData, setLeaderboardData] = useState<UserLeaderboardData[]>([])
   const theme = useTheme()
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'))
   const navigate = useNavigate()
@@ -22,12 +20,12 @@ const Leaderboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`${config.BACKEND_URL}/api/startup`, {
+        const response = await axios.get(`${config.BACKEND_URL}/api/user?from=0`, {
           withCredentials: true
         });
         setLeaderboardData(response.data)
       } catch (error) {
-        console.error('Error fetching leaderboard data:', error)
+        console.error('Error fetching user leaderboard data:', error)
       }
     }
 
@@ -91,10 +89,6 @@ const Leaderboard = () => {
           <CardContent sx={{ p: '16px !important' }}>
             <Box sx={{ display: 'grid', gridTemplateColumns: isSmallScreen ? '1fr 1fr' : '1fr 1fr 100px', alignItems: 'center' }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Avatar
-                  src={entry.icon}
-                  sx={{ width: 56, height: 56 }}
-                />
                 <Box>
                   <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
                     {entry.name}
@@ -103,10 +97,7 @@ const Leaderboard = () => {
               </Box>
               <Box>
                 <Typography variant="body1">
-                  Valuation: {entry.valuation}
-                </Typography>
-                <Typography variant="body1">
-                  Equity Sold: {entry.equity_sold.toFixed(4)}
+                  Net worth: {entry.net_worth.toFixed(4)}
                 </Typography>
               </Box>
               {!isSmallScreen && (
@@ -123,4 +114,4 @@ const Leaderboard = () => {
   )
 }
 
-export default Leaderboard
+export default UserLeaderboard

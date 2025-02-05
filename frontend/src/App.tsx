@@ -8,6 +8,9 @@ import PaymentPage from "./pages/PayPage";
 import Leaderboard from "./pages/LeaderboardPage";
 import ScanPage from "./pages/ScanPage";
 import HomePage from "./pages/HomePage";
+import PortfolioPage from "./pages/PortfolioPage";
+import UserLeaderboard from "./pages/UserLeaderboardPage";
+import SignUpPage from "./pages/RegisterPage";
 
 const App = () => {
   return (
@@ -20,6 +23,9 @@ const App = () => {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/pay" element={<ProtectedRoute><PaymentPage /></ProtectedRoute>} />
           <Route path="/leaderboard" element={<Leaderboard />} />
+          <Route path="/portfolio" element={<ProtectedRoute><PortfolioPage /></ProtectedRoute>} />
+          <Route path="/user-leaderboard" element={<UserLeaderboard />} />
+          <Route path="/signup" element={<SignUpPage />} />\
         </Routes>
       </ThemeProvider>
     </AuthProvider>

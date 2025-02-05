@@ -25,7 +25,7 @@ const PaymentPage = () => {
     const fetchUser = async () => {
       try {
         const res = await axios.post(`${config.BACKEND_URL}/api/pay`, {
-          startup_id: id,
+          startup_id: parseInt(id, 10),
         }, {
           withCredentials: true
         })
