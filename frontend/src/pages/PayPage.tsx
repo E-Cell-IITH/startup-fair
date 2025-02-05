@@ -11,18 +11,11 @@ const PaymentPage = () => {
   const [error, setError] = useState('')
   const [searchParams] = useSearchParams()
   const id = searchParams.get('id')
-  const amount = searchParams.get('amount')
   const [newBalance, setNewBalance] = useState(0)
 
   useEffect(() => {
-    if (!id || !amount) {
+    if (!id) {
       setError('Invalid payment URL')
-      setLoading(false)
-      return
-    }
-
-    if (parseInt(amount, 10) <= 0) {
-      setError('Invalid amount')
       setLoading(false)
       return
     }
@@ -33,7 +26,6 @@ const PaymentPage = () => {
       try {
         const res = await axios.post(`${config.BACKEND_URL}/api/pay`, {
           startup_id: id,
-          amount
         }, {
           withCredentials: true
         })
@@ -56,7 +48,7 @@ const PaymentPage = () => {
     }
 
     fetchUser();
-  }, [amount, id])
+  }, [id])
 
   return (
     <>

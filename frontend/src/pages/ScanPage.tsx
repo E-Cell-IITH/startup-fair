@@ -12,13 +12,12 @@ import { QrCodeScanner } from '@mui/icons-material';
 
 const ScanPage = () => {
   const [id, setId] = useState('')
-  const [amount, setAmount] = useState('')
   const [showScanner, setShowScanner] = useState(false)
 
   const handleManualSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    if (id && amount) {
-      window.location.href = `/pay?id=${id}&amount=${amount}`
+    if (id) {
+      window.location.href = `/pay?id=${id}`
     }
   }
 
@@ -62,18 +61,6 @@ const ScanPage = () => {
               autoFocus
               value={id}
               onChange={(e) => setId(e.target.value)}
-            />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="amount"
-              label="Amount"
-              type="number"
-              id="amount"
-              autoComplete="amount"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
             />
             <Button
               type="submit"
