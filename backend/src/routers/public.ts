@@ -2,6 +2,7 @@ import { FastifyPluginAsyncTypebox, Type } from "@fastify/type-provider-typebox"
 import { ExtendedUserSchema, ExtendedUserType, User, UserSchema, UserType } from "../entity/User.js";
 import { Startup, StartupSchema, StartupType } from "../entity/Startup.js";
 import { AppDataSource } from "../data-source.js";
+import * as bcrypt from 'bcrypt';
 import { leaderboardCache } from "./lib.js";
 
 const plugin: FastifyPluginAsyncTypebox = async function addPublicRoutes(fastify, _opts) {
@@ -22,49 +23,44 @@ const plugin: FastifyPluginAsyncTypebox = async function addPublicRoutes(fastify
       return (await leaderboardCache.get(request.query.from));
     }
   })
-  
+
   fastify.route({
-    url: '/user/:id',
-    method: 'GET',
+    url: '/signup',
+    method: 'POST',
     schema: {
-      params: Type.Object({
-        id: Type.Number()
+      body: Type.Object({
+        name: Type.String({minLength: 1}),
+        password: Type.String({minLength: 1}),
+        email: Type.String({minLength: 1})
       }),
       response: {
-        200: ExtendedUserSchema,
-        404: Type.Object({
-          error: Type.String()
-        })
+        200: Type.Partial(UserSchema),
+        400: {error: Type.String()}
       }
     },
     handler: async function (request, reply) {
-        const userRepository = AppDataSource.getRepository(User);
-        // const user = await userRepository.findOne({where: {id: request.params.id}, relations: ['investments']});
-        const user = await userRepository.createQueryBuilder('user')
-          .where('user.id = :id', {id: request.params.id})
-          .leftJoin('user.investments', 'investment')
-          .leftJoin('investment.startup', 'startup')
-          .addSelect([
-            'investment.id', 
-            'investment.equity', 
-            'investment.amount',
-            'startup.id',
-            'startup.name',
-            'startup.valuation', 
-          ])
-          .getOne();
 
-        if (!user) {
-          reply.code(404);
-          return {error: 'User not found'};
-        }
+      if (!request.body.email.endsWith('@iith.ac.in')) {
+        reply.code(400);
+        return {error: 'Only IITH email addresses are allowed'};
+      }
 
-        user.net_worth = (await user.investments).reduce((acc, investment) => {
-          return acc + investment.equity * investment.startup.valuation;
-        }, user.balance);
+      const usersRepository = AppDataSource.getRepository(User);
 
-        reply.code(200);
-        return user as unknown as ExtendedUserType;
+      let user = new User();
+      user.name = request.body.name;
+      user.email = request.body.email;
+      user.password = bcrypt.hashSync(request.body.password, 10);
+
+      try {
+        user = await usersRepository.save(user);
+      } catch (err) {
+        reply.code(400);
+        return {error: 'User with email already exists'};
+      }
+
+      reply.code(200);
+      return user as unknown as UserType;
     }
   })
 

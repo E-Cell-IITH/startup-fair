@@ -1,5 +1,5 @@
 import { FastifyPluginAsyncTypebox, Type } from "@fastify/type-provider-typebox";
-import { User, UserSchema, UserType } from "../entity/User.js";
+import { ExtendedUserSchema, ExtendedUserType, User, UserSchema, UserType } from "../entity/User.js";
 import { AppDataSource } from "../data-source.js";
 import fastifyJwt, { FastifyJWTOptions } from "@fastify/jwt";
 import fastifyCookie from "@fastify/cookie";
@@ -87,9 +87,9 @@ const addProtectedRoutes: FastifyPluginAsyncTypebox = async function addProtecte
 
         const token = fastify.jwt.sign({id: user.id, name: user.name, isAdmin: user.isAdmin});
         reply.setCookie('auth_token', token, {
-            sameSite: 'lax',
+            sameSite: 'none',
             httpOnly: true,
-            secure: false, //process.env.NODE_ENV === 'production',
+            secure: true, //process.env.NODE_ENV === 'production',
         });
         reply.code(200);
         return user as unknown as UserType;
@@ -106,6 +106,50 @@ const addProtectedRoutes: FastifyPluginAsyncTypebox = async function addProtecte
     })
 
     fastify.route({
+        url: '/user/portfolio',
+        method: 'GET',
+        schema: {
+          response: {
+            200: ExtendedUserSchema,
+            404: Type.Object({
+              error: Type.String()
+            })
+          }
+        },
+        preHandler: requireAuth,
+        handler: async function (request, reply) {
+            const userRepository = AppDataSource.getRepository(User);
+            // const user = await userRepository.findOne({where: {id: request.params.id}, relations: ['investments']});
+            const user = await userRepository.createQueryBuilder('user')
+              .where('user.id = :id', {id: request.user.id})
+              .leftJoin('user.investments', 'investment')
+              .leftJoin('investment.startup', 'startup')
+              .addSelect([
+                'investment.id', 
+                'investment.equity', 
+                'investment.amount',
+                'startup.id',
+                'startup.name',
+                'startup.valuation', 
+                'startup.icon'
+              ])
+              .getOne();
+    
+            if (!user) {
+              reply.code(404);
+              return {error: 'User not found'};
+            }
+    
+            user.net_worth = (await user.investments).reduce((acc, investment) => {
+              return acc + investment.equity * investment.startup.valuation;
+            }, user.balance);
+    
+            reply.code(200);
+            return user as unknown as ExtendedUserType;
+        }
+    })
+
+    fastify.route({
         url: '/pay',
         method: 'POST',
         schema: {
@@ -114,7 +158,8 @@ const addProtectedRoutes: FastifyPluginAsyncTypebox = async function addProtecte
             }),
             response: {
                 200: Type.Object({
-                    message: Type.String()
+                    message: Type.String(),
+                    new_balance: Type.Number()
                 }),
                 400: Type.Object({
                     error: Type.String()
@@ -179,7 +224,7 @@ const addProtectedRoutes: FastifyPluginAsyncTypebox = async function addProtecte
                 GlobalStats.next_recent_payments += 1;
                 GlobalStats.payments += 1;
                 reply.code(200);
-                return {message: 'Payment successful'};
+                return {message: 'Payment successful', new_balance: user.balance};
 
             } catch (err) {
                 reply.code(500);

@@ -16,7 +16,7 @@ const server = fastify({ logger: {level: 'debug'} })
     .withTypeProvider<TypeBoxTypeProvider>();
 
 server.register(cors, {
-    origin: process.env.ADMIN_ORIGIN,
+    origin: true,
     credentials: true
 })
 

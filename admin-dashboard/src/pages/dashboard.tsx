@@ -23,7 +23,7 @@ export default function StatisticsPage() {
   useEffect(() => {
     // Here you would typically fetch the stats from an API
 
-    if (!fetch('http://localhost:8080/api/admin/stats', {method: 'GET', credentials: 'include'})
+    if (!fetch('http://localhost:6969/api/admin/stats', {method: 'GET', credentials: 'include'})
       .then((res) => res.json())
       .then((data) => {
         setStats({
@@ -45,7 +45,7 @@ export default function StatisticsPage() {
       return false
     })) return;
 
-    const interval = setInterval(() => fetch('http://localhost:8080/api/admin/stats', {method: 'GET', credentials: 'include'})
+    const interval = setInterval(() => fetch('http://localhost:6969/api/admin/stats', {method: 'GET', credentials: 'include'})
       .then((res) => res.json())
       .then((data) => {
         setStats({

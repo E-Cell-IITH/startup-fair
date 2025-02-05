@@ -15,7 +15,7 @@ export default function LoginForm() {
     e.preventDefault()
     // Make an API call to the backend to authenticate the user
   
-    await fetch('http://localhost:8080/api/login', {
+    await fetch('http://localhost:6969/api/login', {
       credentials: 'include',
       method: 'POST',
       headers: {

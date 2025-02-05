@@ -62,6 +62,7 @@ export const ExtendedUserSchema = Type.Object({
       startup: Type.Object({
         id: Type.Number(),
         name: Type.String(),
+        icon: Type.String(),
         valuation: Type.Number()
       })
     })
