@@ -14,7 +14,7 @@ export default function LoginPage() {
 
     try {
       const response = await axios.post(
-        `${config.BACKEND_URL}/auth/login`,
+        `${config.BACKEND_URL}/api/login`,
         { email, password },
         { withCredentials: true }
       );
@@ -44,7 +44,7 @@ export default function LoginPage() {
       sx={{
         minHeight: "100vh",
         width: "100%",
-        background: 'conic-gradient(from 180deg at 50% 50%, #093B87 -130.25deg, #0B4BAB 127deg, #0D57C7 127.05deg, #062B61 229.35deg, #093B87 229.75deg, #0B4BAB 487deg), linear-gradient(270deg, rgba(255, 217, 217, 0.0512) 4.5%, rgba(158, 65, 163, 0.64) 100%);',
+        background: 'conic-gradient(from 180deg at 50% 50%, rgba(9, 59, 135, 0.5) -130.25deg, rgba(11, 75, 171, 0.5) 127deg, rgba(13, 87, 199, 0.5) 127.05deg, rgba(6, 43, 97, 0.5) 229.35deg, rgba(9, 59, 135, 0.5) 229.75deg, rgba(11, 75, 171, 0.5) 487deg), linear-gradient(270deg, rgba(255, 217, 217, 0.0512) 4.5%, rgba(158, 65, 163, 0.64) 100%);',
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",

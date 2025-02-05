@@ -1,50 +1,32 @@
+import { useEffect, useState } from 'react'
 import { Card, CardContent, Typography, Avatar, Box } from '@mui/material'
+import axios from 'axios'
+import config from '../config.json'
 
 interface LeaderboardEntry {
   id: number
   name: string
-  jobTitle: string
-  metric1: string
-  metric2: string
-  rank: string
-  image: string
-  backgroundColor: string
+  icon: string
+  equity_sold: number
+  valuation: number
 }
 
-const leaderboardData: LeaderboardEntry[] = [
-  {
-    id: 1,
-    name: 'NAME HERE',
-    jobTitle: 'Job Title Here',
-    metric1: 'Metric 1',
-    metric2: 'Metric 2',
-    rank: '001',
-    image: '',
-    backgroundColor: '#3474e6'
-  },
-  {
-    id: 2,
-    name: 'NAME HERE',
-    jobTitle: 'Job Title Here',
-    metric1: 'Metric 1',
-    metric2: 'Metric 2',
-    rank: '002',
-    image: '',
-    backgroundColor: '#00a1a1'
-  },
-  {
-    id: 3,
-    name: 'NAME HERE',
-    jobTitle: 'Job Title Here',
-    metric1: 'Metric 1',
-    metric2: 'Metric 2',
-    rank: '003',
-    image: '',
-    backgroundColor: '#2ecc71'
-  }
-]
-
 const Leaderboard = () => {
+  const [leaderboardData, setLeaderboardData] = useState<LeaderboardEntry[]>([])
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`${config.BACKEND_URL}/api/startup`,);
+        setLeaderboardData(response.data)
+      } catch (error) {
+        console.error('Error fetching leaderboard data:', error)
+      }
+    }
+
+    fetchData()
+  }, [])
+
   return (
     <Box sx={{ maxWidth: 800, mx: 'auto', p: 3, mt: 5 }}>
       <Typography variant="h2" component="h1" align="center" gutterBottom sx={{ fontWeight: 700 }}>
@@ -69,12 +51,12 @@ const Leaderboard = () => {
         <Typography variant="subtitle1">RANK</Typography>
       </Box>
 
-      {leaderboardData.map((entry) => (
+      {leaderboardData.map((entry, index) => (
         <Card
           key={entry.id}
           sx={{
             mb: 1,
-            bgcolor: entry.backgroundColor,
+            bgcolor: 'black',
             color: 'white',
             '&:hover': {
               opacity: 0.9
@@ -85,28 +67,28 @@ const Leaderboard = () => {
             <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr 100px', alignItems: 'center' }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                 <Avatar
-                  src={entry.image}
+                  src={entry.icon}
                   sx={{ width: 56, height: 56 }}
                 />
                 <Box>
                   <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
                     {entry.name}
                   </Typography>
-                  <Typography variant="body2">
+                  {/* <Typography variant="body2">
                     {entry.jobTitle}
-                  </Typography>
+                  </Typography> */}
                 </Box>
               </Box>
               <Box>
                 <Typography variant="body1">
-                  {entry.metric1}
+                  Equity: {entry.equity_sold}
                 </Typography>
                 <Typography variant="body1">
-                  {entry.metric2}
+                  Valuation: {entry.valuation}
                 </Typography>
               </Box>
               <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                {entry.rank}
+                {index + 1}
               </Typography>
             </Box>
           </CardContent>

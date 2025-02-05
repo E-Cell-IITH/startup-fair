@@ -1,5 +1,6 @@
 import { AppBar, Toolbar, Button, Typography, Box, CardContent, Container, Grid } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import { useNavigate } from 'react-router-dom';
 
 const GradientButton = styled(Button)(({ theme }) => ({
   backgroundColor: '#FF8C00',
@@ -80,6 +81,8 @@ const ProgressCircle = styled(Box)(({ theme }) => ({
 }));
 
 const HomePage = () => {
+  const navigate = useNavigate();
+
   return (
     <Box>
       <AppBar position="static" color="transparent" elevation={0}>
@@ -97,11 +100,7 @@ const HomePage = () => {
               justifyContent: { xs: 'center', sm: 'flex-end' },
             }}
           >
-            <Button color="inherit">HOW IT WORKS</Button>
-            <Button color="inherit">FIND SAVINGS</Button>
-            <Button color="inherit">SUPPORT</Button>
-            <Button color="inherit">TOOLS & TIPS</Button>
-            <GradientButton variant="contained">LOG IN</GradientButton>
+            <GradientButton variant="contained" onClick={() => navigate('/login')}>LOG IN</GradientButton>
           </Box>
         </Toolbar>
       </AppBar>
@@ -115,17 +114,16 @@ const HomePage = () => {
             fontSize: { xs: '2rem', md: '3rem' },
           }}
         >
-          <span style={{ color: '#4DC88D' }}>BE GOOD WITH YOUR MONEY</span>
+          <span style={{ color: '#4DC88D' }}>E-CELL STARTUP FAIR</span>
           <br />
-          SO YOU CAN BE EXPRESSIVE
+          VIRTUAL STARTUP PORTAL
           <br />
-          WITH YOUR SPACE
         </Typography>
         <Typography
           variant="h6"
           sx={{ mb: 2, fontSize: { xs: '1rem', md: '1.25rem' } }}
         >
-          Get your totally free credit score and start making the dream a reality.
+          Join us to explore innovative startups and connect with like-minded entrepreneurs.
         </Typography>
         <GradientButton size="large">SIGN UP FREE</GradientButton>
       </HeroSection>
@@ -139,14 +137,14 @@ const HomePage = () => {
                   sx={{ color: 'white', fontWeight: 600 }}
                   gutterBottom
                 >
-                  Bills? Paid
+                  Network? Expanded
                 </Typography>
                 <Typography
                   variant="body1"
                   color="text.secondary"
                   sx={{ mb: 2 }}
                 >
-                  Don't miss a bill again. See and pay your bills in one place.
+                  Connect with industry leaders and fellow entrepreneurs.
                 </Typography>
                 <CircularGauge>7</CircularGauge>
               </CardContent>
@@ -160,14 +158,14 @@ const HomePage = () => {
                   sx={{ color: 'white', fontWeight: 600 }}
                   gutterBottom
                 >
-                  All-in-one? Done
+                  Resources? Provided
                 </Typography>
                 <Typography
                   variant="body1"
                   color="text.secondary"
                   sx={{ mb: 2 }}
                 >
-                  From money and budgeting to customized tips and more—get a clear view.
+                  Access a wealth of resources to help your startup succeed.
                 </Typography>
                 <ProgressCircle />
               </CardContent>
@@ -181,14 +179,14 @@ const HomePage = () => {
                   sx={{ color: 'white', fontWeight: 600 }}
                   gutterBottom
                 >
-                  Credit? Checked
+                  Funding? Secured
                 </Typography>
                 <Typography
                   variant="body1"
                   color="text.secondary"
                   sx={{ mb: 2 }}
                 >
-                  Find out yours and learn how you can improve it. It's totally free.
+                  Learn how to secure funding and grow your startup.
                 </Typography>
                 <CreditScoreGauge />
               </CardContent>

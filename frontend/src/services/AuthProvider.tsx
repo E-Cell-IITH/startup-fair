@@ -16,7 +16,7 @@ export const AuthProvider = ({ children }: AuthProviderProp) => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await axios.get(`${config.BACKEND_URL}/api/user/me`, {
+        const res = await axios.get(`${config.BACKEND_URL}/api/me`, {
           withCredentials: true
         })
 
