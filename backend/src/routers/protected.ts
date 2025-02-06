@@ -9,6 +9,7 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import { GlobalStats, Mutex, MutexManager } from "./lib.js";
 import * as bcrypt from 'bcrypt';
 import addAdminRoutes from "./admin.js";
+import { logRequest } from "../logging.js";
 
 var investment_valuation_increment = Number.parseInt(process.env.PER_INVESTMENT_VALUATION_INCREMENT as string)
 var investment_amount = Number.parseInt(process.env.PER_INVESTMENT_AMOUNT as string)
@@ -63,7 +64,8 @@ const addProtectedRoutes: FastifyPluginAsyncTypebox = async function addProtecte
                     error: Type.String()
                 })
             }
-        }
+        },
+        onRequest: [logRequest]
     }, async function (request, reply) {
         const { email, password } = request.body as { email: string, password: string };
 
@@ -95,6 +97,54 @@ const addProtectedRoutes: FastifyPluginAsyncTypebox = async function addProtecte
         return user as unknown as UserType;
     });
 
+    fastify.route({
+        url: '/signup',
+        method: 'POST',
+        schema: {
+          body: Type.Object({
+            name: Type.String({minLength: 1}),
+            password: Type.String({minLength: 1}),
+            email: Type.String({minLength: 1})
+          }),
+          response: {
+            200: Type.Partial(UserSchema),
+            400: {error: Type.String()}
+          }
+        },
+        onRequest: [logRequest],
+        handler: async function (request, reply) {
+    
+          if (!request.body.email.endsWith('@iith.ac.in')) {
+            reply.code(400);
+            return {error: 'Only IITH email addresses are allowed'};
+          }
+    
+          const usersRepository = AppDataSource.getRepository(User);
+    
+          let user = new User();
+          user.name = request.body.name;
+          user.email = request.body.email;
+          user.password = bcrypt.hashSync(request.body.password, 10);
+    
+          try {
+            user = await usersRepository.save(user);
+          } catch (err) {
+            reply.code(400);
+            return {error: 'User with email already exists'};
+          }
+    
+          const token = fastify.jwt.sign({id: user.id, name: user.name, isAdmin: user.isAdmin});
+          reply.setCookie('auth_token', token, {
+              sameSite: 'none',
+              httpOnly: true,
+              secure: true, //process.env.NODE_ENV === 'production',
+          });
+    
+          reply.code(200);
+          return user as unknown as UserType;
+        }
+    })
+
     fastify.post('/logout', function (request, reply) {
         reply.setCookie('auth_token', '', {expires: new Date(0)});
         reply.redirect('/login');
@@ -116,6 +166,7 @@ const addProtectedRoutes: FastifyPluginAsyncTypebox = async function addProtecte
             })
           }
         },
+        onRequest: logRequest,
         preHandler: requireAuth,
         handler: async function (request, reply) {
             const userRepository = AppDataSource.getRepository(User);
@@ -166,6 +217,7 @@ const addProtectedRoutes: FastifyPluginAsyncTypebox = async function addProtecte
                 })
             }
         },
+        onRequest: logRequest,
         preHandler: requireAuth,
         handler: async function (request, reply) {
             const { startup_id } = request.body;

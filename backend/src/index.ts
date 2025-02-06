@@ -11,7 +11,7 @@ import cors from '@fastify/cors'
 import { attachCache, attachStats } from './routers/lib.js';
 import { createAdmin } from './utils/create_admin.js';
 
-const server = fastify({ logger: {level: 'debug'} })
+const server = fastify()
     .setValidatorCompiler(TypeBoxValidatorCompiler)
     .withTypeProvider<TypeBoxTypeProvider>();
 
@@ -32,7 +32,7 @@ attachCache(server);
 
 AppDataSource.initialize().then(async () => {
 
-    server.log.info('Database Connected');
+    logger.info('Database Connected');
 
     if (process.argv.includes('--seed')) {
         await seedDatabase();
@@ -44,7 +44,7 @@ AppDataSource.initialize().then(async () => {
 
     server.listen({ port: 6969 }, (err, address) => {
         if (err) {
-            server.log.error(err);
+            logger.error(err);
             process.exit(1);
         } else {
             logger.info(`Server listening at ${address}`);

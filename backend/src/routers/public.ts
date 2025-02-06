@@ -4,6 +4,7 @@ import { Startup, StartupSchema, StartupType } from "../entity/Startup.js";
 import { AppDataSource } from "../data-source.js";
 import * as bcrypt from 'bcrypt';
 import { leaderboardCache } from "./lib.js";
+import { logRequest } from "../logging.js";
 
 const plugin: FastifyPluginAsyncTypebox = async function addPublicRoutes(fastify, _opts) {
     
@@ -21,53 +22,6 @@ const plugin: FastifyPluginAsyncTypebox = async function addPublicRoutes(fastify
     handler: async function (request, reply) {
       reply.code(200);
       return (await leaderboardCache.get(request.query.from));
-    }
-  })
-
-  fastify.route({
-    url: '/signup',
-    method: 'POST',
-    schema: {
-      body: Type.Object({
-        name: Type.String({minLength: 1}),
-        password: Type.String({minLength: 1}),
-        email: Type.String({minLength: 1})
-      }),
-      response: {
-        200: Type.Partial(UserSchema),
-        400: {error: Type.String()}
-      }
-    },
-    handler: async function (request, reply) {
-
-      if (!request.body.email.endsWith('@iith.ac.in')) {
-        reply.code(400);
-        return {error: 'Only IITH email addresses are allowed'};
-      }
-
-      const usersRepository = AppDataSource.getRepository(User);
-
-      let user = new User();
-      user.name = request.body.name;
-      user.email = request.body.email;
-      user.password = bcrypt.hashSync(request.body.password, 10);
-
-      try {
-        user = await usersRepository.save(user);
-      } catch (err) {
-        reply.code(400);
-        return {error: 'User with email already exists'};
-      }
-
-      const token = fastify.jwt.sign({id: user.id, name: user.name, isAdmin: user.isAdmin});
-      reply.setCookie('auth_token', token, {
-          sameSite: 'none',
-          httpOnly: true,
-          secure: true, //process.env.NODE_ENV === 'production',
-      });
-
-      reply.code(200);
-      return user as unknown as UserType;
     }
   })
 

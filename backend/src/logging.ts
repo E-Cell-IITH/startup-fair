@@ -1,4 +1,4 @@
-import { FastifyInstance } from 'fastify';
+import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { createLogger, format, transports } from 'winston';
 import { PapertrailTransport } from 'winston-papertrail-transport';
 
@@ -34,24 +34,33 @@ export const logger = createLogger({
     ], (papertrail != null ? [papertrail] : []))
 });
 
+export async function logRequest(request: FastifyRequest, reply: FastifyReply) {
+    logger.info('Incoming request', {
+        method: request.method,
+        url: request.url,
+        agent: request.headers['user-agent']
+    });
+    return;
+}
+
 export function attachLogger(server: FastifyInstance) {
     // Hook for logging all requests
-    server.addHook('onRequest', async (request, reply) => {
-        logger.info('Incoming request', {
-            method: request.method,
-            url: request.url,
-            agent: request.headers['user-agent']
-        });
-    });
+    // server.addHook('onRequest', async (request, reply) => {
+    //     logger.info('Incoming request', {
+    //         method: request.method,
+    //         url: request.url,
+    //         agent: request.headers['user-agent']
+    //     });
+    // });
 
     // Hook for logging responses
-    server.addHook('onResponse', async (request, reply) => {
-        logger.info('Request completed', {
-            method: request.method,
-            url: request.url,
-            statusCode: reply.statusCode
-        });
-    });
+    // server.addHook('onResponse', async (request, reply) => {
+    //     logger.info('Request completed', {
+    //         method: request.method,
+    //         url: request.url,
+    //         statusCode: reply.statusCode
+    //     });
+    // });
 
     // Error handler
     server.setErrorHandler(async (error, request, reply) => {
@@ -62,8 +71,6 @@ export function attachLogger(server: FastifyInstance) {
             url: request.url
         });
         
-        console.log();
-
         reply.status(500).send({ error: 'Internal Server Error' });
     });
 
