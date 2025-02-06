@@ -48,7 +48,7 @@ const plugin: FastifyPluginAsyncTypebox = async function addPublicRoutes(fastify
     method: 'GET',
     schema: {
       params: Type.Object({
-        id: Type.Number()
+        id: Type.String()
       }),
       response: {
         200: StartupSchema,

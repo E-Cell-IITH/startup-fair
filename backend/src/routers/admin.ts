@@ -184,6 +184,7 @@ const addAdminRoutes: FastifyPluginAsyncTypebox = async function addAdminRoutes(
         method: 'POST',
         schema: {
             body: Type.Object({
+                id: Type.String(),
                 name: Type.String(),
                 icon: Type.String(),
                 valuation: Type.Number()
@@ -195,10 +196,11 @@ const addAdminRoutes: FastifyPluginAsyncTypebox = async function addAdminRoutes(
         },
         preHandler: requireAdmin,
         handler: async function (request, reply) {
-            const { name, icon, valuation } = request.body;
+            const { id, name, icon, valuation } = request.body;
 
             const startupRepository = AppDataSource.getRepository(Startup);
             const startup = startupRepository.create({
+                id,
                 name,
                 icon,
                 valuation
@@ -221,7 +223,7 @@ const addAdminRoutes: FastifyPluginAsyncTypebox = async function addAdminRoutes(
         method: 'PUT',
         schema: {
             params: Type.Object({
-                id: Type.Number()
+                id: Type.String()
             }),
             body: Type.Object({
                 name: Type.String(),

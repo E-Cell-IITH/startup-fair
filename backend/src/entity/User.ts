@@ -60,7 +60,7 @@ export const ExtendedUserSchema = Type.Object({
     Type.Pick(EquitySchema, ['id', 'amount', 'equity']),
     Type.Object({
       startup: Type.Object({
-        id: Type.Number(),
+        id: Type.String(),
         name: Type.String(),
         icon: Type.String(),
         valuation: Type.Number()

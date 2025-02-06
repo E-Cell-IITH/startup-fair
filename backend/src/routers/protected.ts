@@ -215,7 +215,7 @@ const addProtectedRoutes: FastifyPluginAsyncTypebox = async function addProtecte
         method: 'POST',
         schema: {
             body: Type.Object({
-                startup_id: Type.Number()
+                startup_id: Type.String()
             }),
             response: {
                 200: Type.Object({

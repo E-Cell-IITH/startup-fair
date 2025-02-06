@@ -36,20 +36,20 @@ export class Mutex {
 
 export class MutexManager {
     
-    mutexes: Map<number, Mutex>;
+    mutexes: Map<string, Mutex>;
 
     constructor() {
         this.mutexes = new Map();
     }
 
-    getMutex(id: number): Mutex {
+    getMutex(id: string): Mutex {
         if (!this.mutexes.has(id)) {
             this.mutexes.set(id, new Mutex());
         }
         return this.mutexes.get(id) as Mutex;
     }
 
-    dropMutex(id: number) {
+    dropMutex(id: string) {
         this.mutexes.delete(id);
     }
 }

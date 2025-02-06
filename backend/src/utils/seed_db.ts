@@ -13,6 +13,7 @@ interface UserInfo {
 }
 
 interface StartupInfo {
+    id: string;
     name: string;
     icon: string;
     valuation: number;
@@ -66,5 +67,5 @@ export async function seedDatabase() {
     await AppDataSource.getRepository(User).upsert(users, ['email']);
     
     // await AppDataSource.getRepository(Startup).delete({});
-    await AppDataSource.getRepository(Startup).upsert(startups, ['name']);
+    await AppDataSource.getRepository(Startup).upsert(startups, ['id']);
 }

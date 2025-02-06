@@ -20,7 +20,7 @@ import {
 import { useToast } from '@/hooks/use-toast'
 
 export default function StartupsPage() {
-  const [startups, setStartups] = useState<{id: number, name: string, icon: string, valuation: number}[]>([])
+  const [startups, setStartups] = useState<{id: string, name: string, icon: string, valuation: number}[]>([])
   const {toast} = useToast()
 
   useEffect(() => {
@@ -48,12 +48,12 @@ export default function StartupsPage() {
     })
   }, [])
 
-  const [editingStartup, setEditingStartup] = useState<null | { id: number, name: string, icon: string, valuation: number }>(null)
-  const [newStartup, setNewStartup] = useState({ name: '', icon: '', valuation: 0 })
+  const [editingStartup, setEditingStartup] = useState<null | { id: string, name: string, icon: string, valuation: number }>(null)
+  const [newStartup, setNewStartup] = useState({ id: '', name: '', icon: '', valuation: 0 })
   const [addDialogOpen, setAddDialogOpen] = useState(false)
-  const [editDialogId, setEditDialogId] = useState<null | number>(null)
+  const [editDialogId, setEditDialogId] = useState<null | string>(null)
 
-  const handleEditStartup = (startup: { id: number, name: string, icon: string, valuation: number }) => {
+  const handleEditStartup = (startup: { id: string, name: string, icon: string, valuation: number }) => {
     setEditingStartup(startup)
   }
 
@@ -136,7 +136,7 @@ export default function StartupsPage() {
         })
       });
     setAddDialogOpen(false)
-    setNewStartup({ name: '', icon: '', valuation: 0 })
+    setNewStartup({ id: '', name: '', icon: '', valuation: 0 })
   }
 
   return (
@@ -154,6 +154,14 @@ export default function StartupsPage() {
                   <DialogTitle>Add New Startup</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="new-id">Payment Id</Label>
+                    <Input
+                      id="new-id"
+                      value={newStartup.id}
+                      onChange={(e) => setNewStartup({ ...newStartup, id: e.target.value })}
+                    />
+                  </div>
                   <div>
                     <Label htmlFor="new-name">Name</Label>
                     <Input
@@ -188,6 +196,7 @@ export default function StartupsPage() {
             <Table>
               <TableHeader>
                 <TableRow>
+                  <TableHead>Id</TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead>Icon</TableHead>
                   <TableHead>Valuation</TableHead>
@@ -197,6 +206,7 @@ export default function StartupsPage() {
               <TableBody>
                 {startups.map((startup) => (
                   <TableRow key={startup.id}>
+                    <TableCell>{startup.id}</TableCell>
                     <TableCell>{startup.name}</TableCell>
                     <TableCell>{startup.icon}</TableCell>
                     <TableCell>{startup.valuation.toLocaleString()}</TableCell>

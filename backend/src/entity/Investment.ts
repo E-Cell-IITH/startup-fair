@@ -36,13 +36,13 @@ export class Equity {
     // startupId: number;
 
     @Column()
-    startup_id: number;
+    startup_id: string;
 }
 
 export const EquitySchema = Type.Object({
     id: Type.Number(),
     user_id: Type.Number(),
-    startup_id: Type.Number(),
+    startup_id: Type.String(),
     amount: Type.Number(),
     equity: Type.Number(),
     createdAt: Type.String({ format: "date-time" })

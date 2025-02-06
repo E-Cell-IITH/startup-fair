@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn, Unique } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryColumn, PrimaryGeneratedColumn, Unique } from "typeorm";
 import { Equity } from "./Investment.js";
 import { Type, Static } from "@sinclair/typebox";
 
@@ -6,8 +6,8 @@ import { Type, Static } from "@sinclair/typebox";
 @Unique(["name"])
 export class Startup {
 
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryColumn()
+  id: string;
 
   @Column()
   name: string;
@@ -27,7 +27,7 @@ export class Startup {
 }
 
 export const StartupSchema = Type.Object({
-  id: Type.Number(),
+  id: Type.String(),
   name: Type.String(),
   icon: Type.String(),
   equity_sold: Type.Number(),
