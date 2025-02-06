@@ -31,6 +31,11 @@ const requireAuth_404 = async (request: FastifyRequest, reply: FastifyReply) => 
     await request.jwtVerify({onlyCookie: true});
 }
 
+function ValidateEmail(email: string) {
+    var validRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/; 
+    return email.match(validRegex)
+}
+
 const addProtectedRoutes: FastifyPluginAsyncTypebox = async function addProtectedRoutes(fastify, opts) {
     
     if (!process.env.JWT_SECRET) {
@@ -114,9 +119,14 @@ const addProtectedRoutes: FastifyPluginAsyncTypebox = async function addProtecte
         onRequest: [logRequest],
         handler: async function (request, reply) {
     
+          if (!ValidateEmail(request.body.email)) {
+            reply.code(400);
+            return {error: 'Invalid email address'};
+          }
+
           if (!request.body.email.endsWith('@iith.ac.in')) {
             reply.code(400);
-            return {error: 'Only IITH email addresses are allowed'};
+            return {error: 'Only IITH email addresses (domain iith.ac.in) are allowed'};
           }
     
           const usersRepository = AppDataSource.getRepository(User);
