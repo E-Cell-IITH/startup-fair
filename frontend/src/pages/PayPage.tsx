@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
-import { Box, CircularProgress, Typography, Container } from '@mui/material'
-import { useSearchParams } from 'react-router-dom'
+import { Box, CircularProgress, Typography, Container, Button } from '@mui/material'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import axios from 'axios'
 import config from '../config.json'
-import { Check, Error } from '@mui/icons-material'
+import { ArrowBack, Check, Error } from '@mui/icons-material'
 import Navbar from '../components/Navbar'
 
 const PaymentPage = () => {
@@ -12,6 +12,7 @@ const PaymentPage = () => {
   const [searchParams] = useSearchParams()
   const id = searchParams.get('id')
   const [newBalance, setNewBalance] = useState(0)
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!id) {
@@ -25,7 +26,7 @@ const PaymentPage = () => {
     const fetchUser = async () => {
       try {
         const res = await axios.post(`${config.BACKEND_URL}/api/pay`, {
-          startup_id: parseInt(id, 10),
+          startup_id: id,
         }, {
           withCredentials: true
         })
@@ -52,8 +53,8 @@ const PaymentPage = () => {
 
   return (
     <>
-      <Navbar />
       <Container component="main" maxWidth="xs">
+        <Navbar />
         <Box
           sx={{
             marginTop: 8,
@@ -77,7 +78,7 @@ const PaymentPage = () => {
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               {error ? <Error color="error" sx={{ fontSize: 60 }} /> : <Check sx={{ fontSize: 60 }} />}
               <Typography variant="h6" color={`${error ? 'success.error' : 'success.main'}`}>
-                {error ? error : 'Payment Successful!'}
+                {error ? error : 'Successfully Invested!'}
               </Typography>
               {!error && (
                 <Typography variant="h6">
@@ -85,7 +86,9 @@ const PaymentPage = () => {
                 </Typography>
               )}
             </Box>
+
           )}
+          <Button variant='contained' sx={{ mt: 2 }} startIcon={<ArrowBack />} onClick={() => navigate('/portfolio')}>GO BACK</Button>
         </Box>
       </Container>
     </>

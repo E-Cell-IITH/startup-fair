@@ -1,7 +1,9 @@
-import { AppBar, Toolbar, Typography, Box, CardContent, Container, Grid } from '@mui/material';
+import { Typography, Box, CardContent, Container, Grid } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
 import GradientButton from '../components/GradientButton';
+import Navbar from '../components/Navbar';
+import { QrCode, RocketLaunch } from '@mui/icons-material';
 
 const HeroSection = styled(Box)(({ theme }) => ({
   backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), rgba(0, 0, 0, 0.5))`,
@@ -44,59 +46,12 @@ const CircularGauge = styled(Box)<{ color?: string }>(({ theme, color = '#4DC88D
   color: color,
 }));
 
-const CreditScoreGauge = styled(Box)(({ theme }) => ({
-  width: '120px',
-  height: '12px',
-  background: 'linear-gradient(to right, #ff4d4d, #ffeb3b, #4DC88D)',
-  borderRadius: '6px',
-  margin: theme.spacing(5, 'auto'),
-  position: 'relative',
-  '&::after': {
-    content: '"748"',
-    position: 'absolute',
-    top: '-25px',
-    right: '0',
-    color: '#666',
-    fontSize: '16px',
-    fontWeight: 'bold',
-  },
-}));
-
-const ProgressCircle = styled(Box)(({ theme }) => ({
-  width: '60px',
-  height: '60px',
-  margin: theme.spacing(2, 'auto'),
-  background: 'conic-gradient(from 0deg, #4DC88D 0%, #FFB74D 50%, #FF7043 100%)',
-  borderRadius: '50%',
-}));
-
 const HomePage = () => {
   const navigate = useNavigate();
 
   return (
     <Box>
-      <AppBar position="static" color="transparent" elevation={0}>
-        <Toolbar sx={{ justifyContent: 'space-between' }}>
-          <img
-            src="/logo.png"
-            alt="E-Cell"
-            style={{ height: '30px', filter: 'invert(1)' }}
-          />
-          <Box
-            sx={{
-              display: 'flex',
-              gap: 2,
-              flexWrap: 'wrap',
-              justifyContent: { xs: 'center', sm: 'flex-end' },
-            }}
-          >
-            <GradientButton variant="contained" onClick={() => navigate('/leaderboard')}>Leaderboard</GradientButton>
-            <GradientButton variant="contained" onClick={() => navigate('/user-leaderboard')}>Top Users</GradientButton>
-            <GradientButton variant="contained" onClick={() => navigate('/portfolio')}>Portfolio</GradientButton>
-            <GradientButton variant="contained" onClick={() => navigate('/login')}>LOG IN</GradientButton>
-          </Box>
-        </Toolbar>
-      </AppBar>
+      <Navbar />
       <HeroSection>
         <Typography
           variant="h2"
@@ -107,7 +62,7 @@ const HomePage = () => {
             fontSize: { xs: '2rem', md: '3rem' },
           }}
         >
-          <span style={{ color: '#4DC88D' }}>E-CELL STARTUP FAIR</span>
+          <span style={{ color: '#4DC88D' }}>VENTURE VAULT</span>
           <br />
           VIRTUAL STARTUP PORTAL
           <br />
@@ -116,12 +71,12 @@ const HomePage = () => {
           variant="h6"
           sx={{ mb: 2, fontSize: { xs: '1rem', md: '1.25rem' } }}
         >
-          Join us to explore innovative startups and connect with like-minded entrepreneurs.
+          Invest in the right startup and win exciting prizes.
         </Typography>
         <GradientButton size="large" onClick={() => navigate('/login')}>LOG IN</GradientButton>
       </HeroSection>
       <Container sx={{ mt: 5, position: 'relative', zIndex: 1 }}>
-        <Grid container spacing={4}>
+        <Grid container spacing={1}>
           <Grid item xs={12} sm={4}>
             <FeatureCard>
               <CardContent>
@@ -145,23 +100,23 @@ const HomePage = () => {
           </Grid>
           <Grid item xs={12} sm={4}>
             <FeatureCard>
-              <CardContent>
+                <CardContent>
                 <Typography
                   variant="h6"
                   sx={{ color: 'white', fontWeight: 600 }}
                   gutterBottom
                 >
-                  Resources? Provided
+                  How to Invest?
                 </Typography>
                 <Typography
                   variant="body1"
                   color="text.secondary"
                   sx={{ mb: 2 }}
                 >
-                  Access a wealth of resources to help your startup succeed.
+                  Scan the QR code for your favourite startup and invest.
                 </Typography>
-                <ProgressCircle />
-              </CardContent>
+                <QrCode color='success' sx={{ width: '60px', height: '60px' }} />
+                </CardContent>
             </FeatureCard>
           </Grid>
           <Grid item xs={12} sm={4}>
@@ -172,16 +127,16 @@ const HomePage = () => {
                   sx={{ color: 'white', fontWeight: 600 }}
                   gutterBottom
                 >
-                  Funding? Secured
+                  Pro Tip
                 </Typography>
                 <Typography
                   variant="body1"
                   color="text.secondary"
                   sx={{ mb: 2 }}
                 >
-                  Learn how to secure funding and grow your startup.
+                  Try to invest in the most popular startup the earliest. The sooner you invest the more the chances of winning increase.
                 </Typography>
-                <CreditScoreGauge />
+                <RocketLaunch color='success' sx={{ width: '60px', height: '60px' }}  />
               </CardContent>
             </FeatureCard>
           </Grid>

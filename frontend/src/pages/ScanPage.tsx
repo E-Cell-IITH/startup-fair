@@ -8,7 +8,8 @@ import {
   Divider,
 } from '@mui/material'
 import { IDetectedBarcode, Scanner } from '@yudiel/react-qr-scanner';
-import { QrCodeScanner } from '@mui/icons-material';
+import { QrCodeScanner, ShowChart } from '@mui/icons-material';
+import Navbar from '../components/Navbar';
 
 const ScanPage = () => {
   const [id, setId] = useState('')
@@ -34,6 +35,7 @@ const ScanPage = () => {
   return (
     <>
       <Container component="main" maxWidth="xs">
+        <Navbar />
         <Box
           sx={{
             marginTop: 8,
@@ -47,7 +49,7 @@ const ScanPage = () => {
           }}
         >
           <Typography component="h1" variant="h5" sx={{ mb: 3 }}>
-            Payment Details
+            Investment
           </Typography>
           <Box component="form" onSubmit={handleManualSubmit} noValidate sx={{ mt: 1, width: '100%' }}>
             <TextField
@@ -67,8 +69,9 @@ const ScanPage = () => {
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
+              startIcon={<ShowChart />}
             >
-              Pay
+              Invest
             </Button>
           </Box>
           <Divider sx={{ my: 2, width: '100%' }}>

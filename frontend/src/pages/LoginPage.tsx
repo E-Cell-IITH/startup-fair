@@ -20,7 +20,7 @@ export default function LoginPage() {
       );
 
       if (response.status === 200) {
-        window.location.href = "/scan";
+        window.location.href = "/portfolio";
       } else {
         alert(`Error: ${response.data.message}`);
       }

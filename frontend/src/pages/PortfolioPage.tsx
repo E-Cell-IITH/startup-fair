@@ -1,11 +1,12 @@
 import React from "react"
-import { Container, Typography, Grid, Card, CardContent, Avatar, Box, Divider, AppBar, Toolbar } from "@mui/material"
+import { Container, Typography, Grid, Card, CardContent, Avatar, Box, Divider, Button } from "@mui/material"
 import { styled } from "@mui/material/styles"
-import GradientButton from "../components/GradientButton"
 import { useNavigate } from "react-router-dom"
 import { useEffect, useState } from "react"
 import axios from "axios"
 import config from '../config.json'
+import { QrCode } from "@mui/icons-material"
+import Navbar from "../components/Navbar"
 
 // Styled components
 const ProfileHeader = styled(Box)(({ theme }) => ({
@@ -53,28 +54,7 @@ const PortfolioPage: React.FC = () => {
 
   return (
     <>
-      <AppBar position="static" color="transparent" elevation={0}>
-        <Toolbar sx={{ justifyContent: 'space-between' }}>
-          <img
-            src="/logo.png"
-            alt="E-Cell"
-            style={{ height: '30px', filter: 'invert(1)' }}
-          />
-          <Box
-            sx={{
-              display: 'flex',
-              gap: 2,
-              flexWrap: 'wrap',
-              justifyContent: { xs: 'center', sm: 'flex-end' },
-            }}
-          >
-            <GradientButton variant="contained" onClick={() => navigate('/leaderboard')}>Leaderboard</GradientButton>
-            <GradientButton variant="contained" onClick={() => navigate('/user-leaderboard')}>Top Users</GradientButton>
-            <GradientButton variant="contained" onClick={() => navigate('/portfolio')}>Portfolio</GradientButton>
-            <GradientButton variant="contained" onClick={() => navigate('/login')}>LOG IN</GradientButton>
-          </Box>
-        </Toolbar>
-      </AppBar>
+      <Navbar />
       <Container maxWidth="lg" sx={{ mt: 5 }}>
         <ProfileHeader>
           <Typography variant="h4" gutterBottom color="white">
@@ -82,9 +62,11 @@ const PortfolioPage: React.FC = () => {
           </Typography>
           <Typography variant="body1" color="white">{userData.email}</Typography>
           <Typography variant="h6" color="white">Balance: ${userData.balance.toLocaleString()}</Typography>
-          <NetWorth>Net Worth: ${userData.net_worth.toLocaleString()}</NetWorth>
+          <NetWorth>Net Worth: ${(userData.net_worth.toFixed(2)).toLocaleString()}</NetWorth>
         </ProfileHeader>
-
+        <Box display="flex" justifyContent="flex-start" mb={3}>
+          <Button variant="contained" color="warning" onClick={() => navigate('/scan')} startIcon={<QrCode />}>Scan And Pay</Button>
+        </Box>
         <Typography variant="h5" gutterBottom>
           Investments
         </Typography>
