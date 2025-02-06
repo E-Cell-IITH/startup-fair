@@ -18,7 +18,7 @@ export class User {
   @Column()
   password: string;
 
-  @Column({default: 1000})
+  @Column({default: process.env.STARTING_BALANCE})
   balance: number;
 
   @OneToMany("Equity", "user")

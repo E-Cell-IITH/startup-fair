@@ -59,6 +59,13 @@ const plugin: FastifyPluginAsyncTypebox = async function addPublicRoutes(fastify
         return {error: 'User with email already exists'};
       }
 
+      const token = fastify.jwt.sign({id: user.id, name: user.name, isAdmin: user.isAdmin});
+      reply.setCookie('auth_token', token, {
+          sameSite: 'none',
+          httpOnly: true,
+          secure: true, //process.env.NODE_ENV === 'production',
+      });
+
       reply.code(200);
       return user as unknown as UserType;
     }
