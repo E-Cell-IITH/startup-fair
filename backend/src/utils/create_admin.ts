@@ -11,7 +11,9 @@ export async function createAdmin() {
         email: process.env.ADMIN_EMAIL || 'admin@ecell.iith',
         password: bcrypt.hashSync(process.env.ADMIN_PASSWORD || 'ECell-VMF-ftw' as string, 10),
         isAdmin: true,
-        balance: 0
+        balance: 0,
+        verified: true,
+        verificationToken: ''
     }
 
     const user = await usersRepository.findOneBy({ email: admin.email })

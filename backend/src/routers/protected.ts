@@ -10,6 +10,7 @@ import { GlobalStats, Mutex, MutexManager } from "./lib.js";
 import * as bcrypt from 'bcrypt';
 import addAdminRoutes from "./admin.js";
 import { logRequest } from "../logging.js";
+import { generateVerificationToken, sendVerificationEmail } from "./mail.js";
 
 var investment_valuation_increment = Number.parseInt(process.env.PER_INVESTMENT_VALUATION_INCREMENT as string)
 var investment_amount = Number.parseInt(process.env.PER_INVESTMENT_AMOUNT as string)
@@ -92,6 +93,11 @@ const addProtectedRoutes: FastifyPluginAsyncTypebox = async function addProtecte
             return {error: 'User is blocked'};
         }
 
+        if (!user.verified) {
+            reply.code(401);
+            return {error: 'User is not verified, Please check your inbox for verification email'};
+        }
+
         const token = fastify.jwt.sign({id: user.id, name: user.name, isAdmin: user.isAdmin});
         reply.setCookie('auth_token', token, {
             sameSite: 'none',
@@ -135,6 +141,7 @@ const addProtectedRoutes: FastifyPluginAsyncTypebox = async function addProtecte
           user.name = request.body.name;
           user.email = request.body.email;
           user.password = bcrypt.hashSync(request.body.password, 10);
+          user.verificationToken = generateVerificationToken();
     
           try {
             user = await usersRepository.save(user);
@@ -142,16 +149,53 @@ const addProtectedRoutes: FastifyPluginAsyncTypebox = async function addProtecte
             reply.code(400);
             return {error: 'User with email already exists'};
           }
+
+          await sendVerificationEmail(user.email, user.verificationToken, user.id.toString());
     
-          const token = fastify.jwt.sign({id: user.id, name: user.name, isAdmin: user.isAdmin});
-          reply.setCookie('auth_token', token, {
-              sameSite: 'none',
-              httpOnly: true,
-              secure: true, //process.env.NODE_ENV === 'production',
-          });
+          reply.code(201);
+          reply.redirect('/signup-success')
+        }
+    })
+
+    fastify.route({
+        method: 'GET',
+        url: '/verify-email',
+        schema: {
+          querystring: Type.Object({
+            token: Type.String(),
+            id: Type.Number()
+          }),
+          response: {
+            200: Type.Object({
+              message: Type.String()
+            }),
+            400: Type.Object({
+              error: Type.String()
+            })
+          }
+        },
+        onRequest: logRequest,
+        handler: async function (request, reply) {
+          const { token, id } = request.query;
+    
+          const userRepository = AppDataSource.getRepository(User);
+          const user = await userRepository.findOne({where: {id, verificationToken: token}});
+    
+          if (!user) {
+            reply.code(400);
+            return {error: 'Invalid verification token'};
+          }
+    
+          if (user.verified) {
+            reply.code(400);
+            return {error: 'Email already verified, please try to log in'};
+          }
+
+          user.verified = true;
+          await userRepository.save(user);
     
           reply.code(200);
-          return user as unknown as UserType;
+          return {message: 'Email verified successfully. You can now log in.'};
         }
     })
 

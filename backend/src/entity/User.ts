@@ -36,6 +36,12 @@ export class User {
   @Column({default: false})
   isBlocked: boolean;
 
+  @Column({select: false, default: ''})
+  verificationToken: string;
+
+  @Column({select: false, default: false})
+  verified: boolean;
+
   // Not a column
   net_worth?: number;
 }
