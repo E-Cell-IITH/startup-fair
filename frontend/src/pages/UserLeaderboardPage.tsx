@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Card, CardContent, Typography, Avatar, Box, useMediaQuery, useTheme, AppBar, Toolbar } from '@mui/material'
+import { Card, CardContent, Typography, Box, useMediaQuery, useTheme, AppBar, Toolbar } from '@mui/material'
 import axios from 'axios'
 import config from '../config.json'
 import GradientButton from '../components/GradientButton'
