@@ -5,13 +5,20 @@ import config from '../config.json'
 import Navbar from '../components/Navbar'
 
 interface UserLeaderboardData {
-  id: number
-  name: string
-  net_worth: number
+  leaderboard: {
+    id: number
+    name: string,
+    net_worth: number
+  }[],
+  user: {
+    rank: number,
+    name: string,
+    net_worth: number
+  }
 }
 
 const UserLeaderboard = () => {
-  const [leaderboardData, setLeaderboardData] = useState<UserLeaderboardData[]>([])
+  const [leaderboardData, setLeaderboardData] = useState<UserLeaderboardData>()
   const theme = useTheme()
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'))
 
@@ -43,6 +50,14 @@ const UserLeaderboard = () => {
         >
           LEADERBOARD
         </Typography>
+        <Typography
+          variant="body2"
+          align="center"
+          gutterBottom
+          sx={{ color: 'gray', mb: 2 }}
+        >
+          This data will be updated every minute. Invest to show up on leaderboard
+        </Typography>
         <Box
           sx={{
             display: 'grid',
@@ -59,7 +74,7 @@ const UserLeaderboard = () => {
           {!isSmallScreen && <Typography variant="subtitle1">RANK</Typography>}
         </Box>
 
-        {leaderboardData.map((entry, index) => (
+        {leaderboardData?.leaderboard.map((entry, index) => (
           <Card
             key={entry.id}
             sx={{
@@ -71,25 +86,30 @@ const UserLeaderboard = () => {
               }
             }}
           >
-            <CardContent sx={{ p: '16px !important' }}>
+            <CardContent
+              sx={{
+              p: '16px !important',
+              bgcolor: leaderboardData?.user.name === entry.name ? 'primary.main' : 'black'
+              }}
+            >
               <Box sx={{ display: 'grid', gridTemplateColumns: isSmallScreen ? '1fr 1fr' : '1fr 1fr 100px', alignItems: 'center' }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <Box>
-                    <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                      {entry.name}
-                    </Typography>
-                  </Box>
-                </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                 <Box>
-                  <Typography variant="body1">
-                    Net worth: {entry.net_worth.toFixed(2)}
-                  </Typography>
+                <Typography variant="h6" sx={{ fontWeight: 'bold', color: leaderboardData?.user.name === entry.name ? 'black' : 'white' }}>
+                  {entry.name}
+                </Typography>
                 </Box>
-                {!isSmallScreen && (
-                  <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                    {index + 1}
-                  </Typography>
-                )}
+              </Box>
+              <Box>
+                <Typography variant="body1" sx={{ color: leaderboardData?.user.name === entry.name ? 'black' : 'white' }}>
+                Net worth: {entry.net_worth.toFixed(2)}
+                </Typography>
+              </Box>
+              {!isSmallScreen && (
+                <Typography variant="h6" sx={{ fontWeight: 'bold', color: leaderboardData?.user.name === entry.name ? 'black' : 'white' }}>
+                {index + 1}
+                </Typography>
+              )}
               </Box>
             </CardContent>
           </Card>

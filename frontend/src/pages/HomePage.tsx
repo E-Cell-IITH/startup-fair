@@ -1,7 +1,6 @@
-import { Typography, Box, CardContent, Container, Grid } from '@mui/material';
+import { Typography, Box, CardContent, Container, Grid, Button } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
-import GradientButton from '../components/GradientButton';
 import Navbar from '../components/Navbar';
 import { QrCode, RocketLaunch } from '@mui/icons-material';
 
@@ -32,20 +31,6 @@ const FeatureCard = styled(Box)(({ theme }) => ({
   },
 }));
 
-const CircularGauge = styled(Box)<{ color?: string }>(({ theme, color = '#4DC88D' }) => ({
-  width: '60px',
-  height: '60px',
-  borderRadius: '50%',
-  border: `3px solid ${color}`,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  margin: theme.spacing(2, 'auto'),
-  fontSize: '24px',
-  fontWeight: 'bold',
-  color: color,
-}));
-
 const HomePage = () => {
   const navigate = useNavigate();
 
@@ -73,7 +58,7 @@ const HomePage = () => {
         >
           Invest in the right startup and win exciting prizes.
         </Typography>
-        <GradientButton size="large" onClick={() => navigate('/login')}>LOG IN</GradientButton>
+        <Button variant="contained" size="large" onClick={() => navigate('/signup')}>Sign Up</Button>
       </HeroSection>
       <Container sx={{ mt: 5, position: 'relative', zIndex: 1 }}>
         <Grid container spacing={1}>
@@ -94,7 +79,7 @@ const HomePage = () => {
                 >
                   Connect with industry leaders and fellow entrepreneurs.
                 </Typography>
-                <CircularGauge>7</CircularGauge>
+                <QrCode color='success' sx={{ width: '60px', height: '60px' }} />
               </CardContent>
             </FeatureCard>
           </Grid>

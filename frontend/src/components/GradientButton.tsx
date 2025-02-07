@@ -3,7 +3,7 @@ import { styled } from "@mui/material/styles";
 
 const GradientButton = styled(Button)(({ theme }) => ({
   backgroundColor: '#FF8C00',
-  color: 'white',
+  color: 'black',
   '&:hover': {
     backgroundColor: '#e67e00',
   },

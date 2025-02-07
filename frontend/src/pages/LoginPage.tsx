@@ -28,10 +28,10 @@ export default function LoginPage() {
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 404) {
           console.warn("User not found!");
-          alert(`Error: ${error.response.data.message}`);
+          alert(`Error: ${error.response.data.error}`);
         } else {
           console.error("An error occurred while logging in", error);
-          alert(`Error: ${error.response?.data.message}`);
+          alert(`Error: ${error.response?.data.error}`);
         }
       }
     } finally {

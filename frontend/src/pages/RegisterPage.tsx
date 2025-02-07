@@ -27,19 +27,19 @@ export default function SignUpPage() {
         { withCredentials: true }
       );
 
-      if (response.status === 200) {
-        window.location.href = "/scan";
+      if (response.status === 201) {
+        window.location.href = "/signup-success";
       } else {
-        alert(`Error: ${response.data.message}`);
+        alert(`Error: ${response.data.error}`);
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
         if (error.response?.status === 404) {
           console.warn("User not found!");
-          alert(`Error: ${error.response.data.message}`);
+          alert(`Error: ${error.response.data.error}`);
         } else {
           console.error("An error occurred while signing in", error);
-          alert(`Error: ${error.response?.data.message}`);
+          alert(`Error: ${error.response?.data.error}`);
         }
       }
     } finally {

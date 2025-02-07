@@ -12,6 +12,8 @@ import PortfolioPage from "./pages/PortfolioPage";
 import UserLeaderboard from "./pages/UserLeaderboardPage";
 import SignUpPage from "./pages/RegisterPage";
 import SuccessPage from "./pages/SuccessPage";
+import SignUpSuccess from "./pages/SignUpSuccess";
+import VerifyEmailPage from "./pages/VerifyEmailPage";
 
 const App = () => {
   return (
@@ -28,6 +30,8 @@ const App = () => {
           <Route path="/user-leaderboard" element={<UserLeaderboard />} />
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/success" element={<SuccessPage />} />
+          <Route path="/signup-success" element={<SignUpSuccess />} />
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
         </Routes>
       </ThemeProvider>
     </AuthProvider>
