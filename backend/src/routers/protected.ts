@@ -18,11 +18,13 @@ var investment_amount = Number.parseInt(process.env.PER_INVESTMENT_AMOUNT as str
 const requireAuth = async (request: FastifyRequest, reply: FastifyReply) => {
     if (!request.cookies || !request.cookies.auth_token) {
         reply.code(401);
+        reply.send();
         return reply;
     }
     await request.jwtVerify({onlyCookie: true}).catch((err) => {
         reply.setCookie('auth_token', '', {expires: new Date(0)});
         reply.code(401);
+        reply.send();
         return reply;
     });
 }
@@ -30,13 +32,13 @@ const requireAuth = async (request: FastifyRequest, reply: FastifyReply) => {
 const requireAuth_404 = async (request: FastifyRequest, reply: FastifyReply) => {
     if (!request.cookies || !request.cookies.auth_token) {
         reply.code(404)
-        reply.send("");
+        reply.send();
         return reply;
     }
     await request.jwtVerify({onlyCookie: true}).catch((err) => {
         reply.setCookie('auth_token', '', {expires: new Date(0)});
         reply.code(404);
-        reply.send("");
+        reply.send();
         return reply;
     });
 }
@@ -123,6 +125,7 @@ const addProtectedRoutes: FastifyPluginAsyncTypebox = async function addProtecte
         },
         onRequest: [logRequest]
     }, async function (request, reply) {
+        request.body.email = request.body.email.toLowerCase();
         const { email, password } = request.body as { email: string, password: string };
 
         const userRepository = AppDataSource.getRepository(User);
@@ -156,6 +159,7 @@ const addProtectedRoutes: FastifyPluginAsyncTypebox = async function addProtecte
             sameSite: 'none',
             httpOnly: true,
             secure: true, //process.env.NODE_ENV === 'production',
+            expires: new Date(Date.now() + 1000 * 60 * 60 * 6)
         });
         reply.code(200);
         return user as unknown as UserType;
@@ -262,6 +266,7 @@ const addProtectedRoutes: FastifyPluginAsyncTypebox = async function addProtecte
     fastify.post('/logout', function (request, reply) {
         reply.setCookie('auth_token', '', {expires: new Date(0)});
         reply.code(200);
+        reply.send();
     })
 
     fastify.post('/me', {preHandler:requireAuth_404} , async function (request, reply) {

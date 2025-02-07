@@ -166,6 +166,7 @@ const addAdminRoutes: FastifyPluginAsyncTypebox = async function addAdminRoutes(
                 balance
             });
             user.password = bcrypt.hashSync(user.password, 10);
+            user.verified = true;
             
             try {
                 await userRepository.save(user);

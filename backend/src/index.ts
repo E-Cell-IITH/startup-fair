@@ -17,7 +17,7 @@ const server = fastify()
     .withTypeProvider<TypeBoxTypeProvider>();
 
 server.register(cors, {
-    origin: true,
+    origin: [process.env.FRONTEND_ORIGIN as string, process.env.ADMIN_ORIGIN as string],
     credentials: true
 })
 
