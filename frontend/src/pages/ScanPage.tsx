@@ -34,8 +34,8 @@ const ScanPage = () => {
 
   return (
     <>
+      <Navbar />
       <Container component="main" maxWidth="xs">
-        <Navbar />
         <Box
           sx={{
             marginTop: 8,

@@ -11,6 +11,7 @@ import HomePage from "./pages/HomePage";
 import PortfolioPage from "./pages/PortfolioPage";
 import UserLeaderboard from "./pages/UserLeaderboardPage";
 import SignUpPage from "./pages/RegisterPage";
+import SuccessPage from "./pages/SuccessPage";
 
 const App = () => {
   return (
@@ -25,7 +26,8 @@ const App = () => {
           <Route path="/leaderboard" element={<Leaderboard />} />
           <Route path="/portfolio" element={<ProtectedRoute><PortfolioPage /></ProtectedRoute>} />
           <Route path="/user-leaderboard" element={<UserLeaderboard />} />
-          <Route path="/signup" element={<SignUpPage />} />\
+          <Route path="/signup" element={<SignUpPage />} />
+          <Route path="/success" element={<SuccessPage />} />
         </Routes>
       </ThemeProvider>
     </AuthProvider>

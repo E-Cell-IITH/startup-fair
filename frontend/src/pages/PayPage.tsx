@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect } from 'react'
 import { Box, CircularProgress, Typography, Container, Button } from '@mui/material'
 import { useNavigate, useSearchParams } from 'react-router-dom'
@@ -34,6 +35,7 @@ const PaymentPage = () => {
         if (res.status === 200) {
           console.log("Payment successful!");
           setNewBalance(res.data.new_balance)
+          window.location.href = `/success?new_balance=${res.data.new_balance.toString()}&error=${error}`;
         }
       } catch (error) {
         if (axios.isAxiosError(error)) {
@@ -49,12 +51,12 @@ const PaymentPage = () => {
     }
 
     fetchUser();
-  }, [id])
+  }, [])
 
   return (
     <>
+      <Navbar />
       <Container component="main" maxWidth="xs">
-        <Navbar />
         <Box
           sx={{
             marginTop: 8,

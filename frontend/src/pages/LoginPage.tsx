@@ -22,7 +22,7 @@ export default function LoginPage() {
       if (response.status === 200) {
         window.location.href = "/portfolio";
       } else {
-        alert(`Error: ${response.data.message}`);
+        alert(`Error: ${response.data.error}`);
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
