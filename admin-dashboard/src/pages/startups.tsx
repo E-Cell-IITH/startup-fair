@@ -49,7 +49,7 @@ export default function StartupsPage() {
   }, [])
 
   const [editingStartup, setEditingStartup] = useState<null | { id: number, name: string, icon: string, valuation: number }>(null)
-  const [newStartup, setNewStartup] = useState({ name: '', icon: '', valuation: 0 })
+  const [newStartup, setNewStartup] = useState({ id: '', name: '', icon: '', valuation: 0 })
   const [addDialogOpen, setAddDialogOpen] = useState(false)
   const [editDialogId, setEditDialogId] = useState<null | number>(null)
 
@@ -136,7 +136,7 @@ export default function StartupsPage() {
         })
       });
     setAddDialogOpen(false)
-    setNewStartup({ name: '', icon: '', valuation: 0 })
+    setNewStartup({ id: '', name: '', icon: '', valuation: 0 })
   }
 
   return (
@@ -154,6 +154,14 @@ export default function StartupsPage() {
                   <DialogTitle>Add New Startup</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="new-id">Payment id (should only contain letters and underscore)</Label>
+                    <Input
+                      id="new-id"
+                      value={newStartup.id}
+                      onChange={(e) => setNewStartup({ ...newStartup, id: e.target.value })}
+                    />
+                  </div>
                   <div>
                     <Label htmlFor="new-name">Name</Label>
                     <Input
