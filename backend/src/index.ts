@@ -10,6 +10,7 @@ import { seedDatabase } from './utils/seed_db.js';
 import cors from '@fastify/cors'
 import { attachCache, attachStats } from './routers/lib.js';
 import { createAdmin } from './utils/create_admin.js';
+import { sendEmails } from './utils/send_emails.js';
 
 const server = fastify()
     .setValidatorCompiler(TypeBoxValidatorCompiler)
@@ -40,6 +41,9 @@ AppDataSource.initialize().then(async () => {
         process.exit(0);
     } else if (process.argv.includes('--create-admin')) {
         process.exit(await createAdmin())
+    } else if (process.argv.includes('--send-emails')) {
+        await sendEmails();
+        process.exit(0);
     }
 
     server.listen({ port: 6969 }, (err, address) => {

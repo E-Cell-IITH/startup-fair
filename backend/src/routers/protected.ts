@@ -10,6 +10,7 @@ import { GlobalStats, leaderboardCache, Mutex, MutexManager } from "./lib.js";
 import * as bcrypt from 'bcrypt';
 import addAdminRoutes from "./admin.js";
 import { logRequest } from "../logging.js";
+import { generateVerificationToken, sendVerificationEmail } from "./mail.js";
 
 var investment_valuation_increment = Number.parseInt(process.env.PER_INVESTMENT_VALUATION_INCREMENT as string)
 var investment_amount = Number.parseInt(process.env.PER_INVESTMENT_AMOUNT as string)
@@ -49,7 +50,7 @@ const optionalAuth = async (request: FastifyRequest, reply: FastifyReply) => {
 }
 
 function ValidateEmail(email: string) {
-    var validRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/; 
+    var validRegex = /^[a-zA-Z0-9.!#$%&'*/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/; 
     return email.match(validRegex)
 }
 
@@ -125,7 +126,10 @@ const addProtectedRoutes: FastifyPluginAsyncTypebox = async function addProtecte
         const { email, password } = request.body as { email: string, password: string };
 
         const userRepository = AppDataSource.getRepository(User);
-        const user = await userRepository.findOne({where: {email}});
+        const user = await userRepository.createQueryBuilder()
+          .addSelect(['User.password', 'User.verified'])
+          .where('User.email = :email', {email})
+          .getOne();
 
         if (!user) {
             reply.code(400);
@@ -140,6 +144,11 @@ const addProtectedRoutes: FastifyPluginAsyncTypebox = async function addProtecte
         if (user.isBlocked) {
             reply.code(401);
             return {error: 'User is blocked'};
+        }
+
+        if (!user.verified) {
+            reply.code(401);
+            return {error: 'User is not verified, Please check your inbox for verification email'};
         }
 
         const token = fastify.jwt.sign({id: user.id, name: user.name, isAdmin: user.isAdmin});
@@ -162,12 +171,14 @@ const addProtectedRoutes: FastifyPluginAsyncTypebox = async function addProtecte
             email: Type.String({minLength: 1})
           }),
           response: {
-            200: Type.Partial(UserSchema),
+            201: Type.String(),
             400: {error: Type.String()}
           }
         },
         onRequest: [logRequest],
         handler: async function (request, reply) {
+
+          request.body.email = request.body.email.toLowerCase();
     
           if (!ValidateEmail(request.body.email)) {
             reply.code(400);
@@ -185,6 +196,7 @@ const addProtectedRoutes: FastifyPluginAsyncTypebox = async function addProtecte
           user.name = request.body.name;
           user.email = request.body.email;
           user.password = bcrypt.hashSync(request.body.password, 10);
+          user.verificationToken = generateVerificationToken();
     
           try {
             user = await usersRepository.save(user);
@@ -192,16 +204,58 @@ const addProtectedRoutes: FastifyPluginAsyncTypebox = async function addProtecte
             reply.code(400);
             return {error: 'User with email already exists'};
           }
+
+          await sendVerificationEmail(user.email, user.verificationToken, user.id.toString());
     
-          const token = fastify.jwt.sign({id: user.id, name: user.name, isAdmin: user.isAdmin});
-          reply.setCookie('auth_token', token, {
-              sameSite: 'none',
-              httpOnly: true,
-              secure: true, //process.env.NODE_ENV === 'production',
-          });
+          reply.code(201);
+          reply.send('');
+        }
+    })
+
+    fastify.route({
+        method: 'POST',
+        url: '/verify-email',
+        schema: {
+          body: Type.Object({
+            token: Type.String(),
+            id: Type.String()
+          }),
+          response: {
+            200: Type.Object({
+              message: Type.String()
+            }),
+            400: Type.Object({
+              error: Type.String()
+            })
+          }
+        },
+        onRequest: logRequest,
+        handler: async function (request, reply) {
+          const token= request.body.token;
+          const id= parseInt(request.body.id, 10);
+
+          if (isNaN(id) || !Number.isInteger(id)) {
+            reply.code(400);
+            return {error: 'Invalid user id'};
+          }
+    
+          const userRepository = AppDataSource.getRepository(User);
+          const user = await userRepository.findOne({where: {id, verificationToken: token}, select: ['id', 'verified']});
+    
+          if (!user) {
+            reply.code(400);
+            return {error: 'Invalid verification token'};
+          }
+    
+          if (user.verified) {
+            reply.code(400);
+            return {error: 'Email already verified, please try to log in'};
+          }
+
+          await userRepository.update(user.id, {verified: true});
     
           reply.code(200);
-          return user as unknown as UserType;
+          return {message: 'Email verified successfully. You can now log in.'};
         }
     })
 
