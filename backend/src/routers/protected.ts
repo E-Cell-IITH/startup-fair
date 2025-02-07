@@ -33,7 +33,7 @@ const requireAuth_404 = async (request: FastifyRequest, reply: FastifyReply) => 
 }
 
 function ValidateEmail(email: string) {
-    var validRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/; 
+    var validRegex = /^[a-zA-Z0-9.!#$%&'*/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/; 
     return email.match(validRegex)
 }
 
@@ -76,7 +76,10 @@ const addProtectedRoutes: FastifyPluginAsyncTypebox = async function addProtecte
         const { email, password } = request.body as { email: string, password: string };
 
         const userRepository = AppDataSource.getRepository(User);
-        const user = await userRepository.findOne({where: {email}});
+        const user = await userRepository.createQueryBuilder()
+          .addSelect(['User.password', 'User.verified'])
+          .where('User.email = :email', {email})
+          .getOne();
 
         if (!user) {
             reply.code(400);
@@ -118,12 +121,14 @@ const addProtectedRoutes: FastifyPluginAsyncTypebox = async function addProtecte
             email: Type.String({minLength: 1})
           }),
           response: {
-            200: Type.Partial(UserSchema),
+            201: Type.String(),
             400: {error: Type.String()}
           }
         },
         onRequest: [logRequest],
         handler: async function (request, reply) {
+
+          request.body.email = request.body.email.toLowerCase();
     
           if (!ValidateEmail(request.body.email)) {
             reply.code(400);
@@ -153,17 +158,17 @@ const addProtectedRoutes: FastifyPluginAsyncTypebox = async function addProtecte
           await sendVerificationEmail(user.email, user.verificationToken, user.id.toString());
     
           reply.code(201);
-          reply.redirect('/signup-success')
+          reply.send('');
         }
     })
 
     fastify.route({
-        method: 'GET',
+        method: 'POST',
         url: '/verify-email',
         schema: {
-          querystring: Type.Object({
+          body: Type.Object({
             token: Type.String(),
-            id: Type.Number()
+            id: Type.String()
           }),
           response: {
             200: Type.Object({
@@ -176,10 +181,16 @@ const addProtectedRoutes: FastifyPluginAsyncTypebox = async function addProtecte
         },
         onRequest: logRequest,
         handler: async function (request, reply) {
-          const { token, id } = request.query;
+          const token= request.body.token;
+          const id= parseInt(request.body.id, 10);
+
+          if (isNaN(id) || !Number.isInteger(id)) {
+            reply.code(400);
+            return {error: 'Invalid user id'};
+          }
     
           const userRepository = AppDataSource.getRepository(User);
-          const user = await userRepository.findOne({where: {id, verificationToken: token}});
+          const user = await userRepository.findOne({where: {id, verificationToken: token}, select: ['id', 'verified']});
     
           if (!user) {
             reply.code(400);
@@ -191,8 +202,7 @@ const addProtectedRoutes: FastifyPluginAsyncTypebox = async function addProtecte
             return {error: 'Email already verified, please try to log in'};
           }
 
-          user.verified = true;
-          await userRepository.save(user);
+          await userRepository.update(user.id, {verified: true});
     
           reply.code(200);
           return {message: 'Email verified successfully. You can now log in.'};
