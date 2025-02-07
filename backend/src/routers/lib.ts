@@ -102,12 +102,14 @@ class UserLeaderboardCache {
     cache_first_page: UserType[];
     lastUpdate: number;
     updatePromise: Promise<void> | null;
+    rankTable: Map<number, { rank: number, net_worth: number }>;
 
     constructor() {
         this.cache = [];
         this.cache_first_page = [];
         this.lastUpdate = 0;
         this.updatePromise = null;
+        this.rankTable = new Map();
     }
 
     async update() {
@@ -124,17 +126,26 @@ class UserLeaderboardCache {
             .orderBy('net_worth', 'DESC')
             .getRawMany().then((users) => {
                 this.cache = users;
-                this.cache_first_page = this.cache.slice(0, 25);
+                this.cache_first_page = this.cache.slice(0, 10);
                 this.lastUpdate = Date.now();
                 this.updatePromise = null;
+                this.rankTable.clear();
+                for (let i=0; i<this.cache.length; i++) {
+                    // @ts-ignore
+                    this.rankTable.set(this.cache[i].id, {rank: i+1, net_worth: this.cache[i].net_worth});
+                }
         });
 
         return this.updatePromise;
     }
 
     async get(from: number) {
-        if (Date.now() - this.lastUpdate > 1000*10) await this.update(); // Cache remains valid for atleast ~10 seconds, and updates when someone requests after cache.
-        return from==0 ? this.cache_first_page : this.cache.slice(from, from+25);
+        if (Date.now() - this.lastUpdate > 1000*60) await this.update(); // Cache remains valid for atleast ~10 seconds, and updates when someone requests after cache.
+        return from==0 ? this.cache_first_page : this.cache.slice(from, from+10);
+    }
+
+    getInfoById(id: number) {
+        return this.rankTable.get(id);
     }
 }
 

@@ -6,7 +6,7 @@ import fastifyCookie from "@fastify/cookie";
 import { Startup } from "../entity/Startup.js";
 import { Equity } from "../entity/Investment.js";
 import { FastifyReply, FastifyRequest } from "fastify";
-import { GlobalStats, Mutex, MutexManager } from "./lib.js";
+import { GlobalStats, leaderboardCache, Mutex, MutexManager } from "./lib.js";
 import * as bcrypt from 'bcrypt';
 import addAdminRoutes from "./admin.js";
 import { logRequest } from "../logging.js";
@@ -16,10 +16,14 @@ var investment_amount = Number.parseInt(process.env.PER_INVESTMENT_AMOUNT as str
 
 const requireAuth = async (request: FastifyRequest, reply: FastifyReply) => {
     if (!request.cookies || !request.cookies.auth_token) {
-        reply.redirect('/login');
+        reply.code(401);
         return reply;
     }
-    await request.jwtVerify({onlyCookie: true});
+    await request.jwtVerify({onlyCookie: true}).catch((err) => {
+        reply.setCookie('auth_token', '', {expires: new Date(0)});
+        reply.code(401);
+        return reply;
+    });
 }
 
 const requireAuth_404 = async (request: FastifyRequest, reply: FastifyReply) => {
@@ -28,7 +32,20 @@ const requireAuth_404 = async (request: FastifyRequest, reply: FastifyReply) => 
         reply.send("");
         return reply;
     }
-    await request.jwtVerify({onlyCookie: true});
+    await request.jwtVerify({onlyCookie: true}).catch((err) => {
+        reply.setCookie('auth_token', '', {expires: new Date(0)});
+        reply.code(404);
+        reply.send("");
+        return reply;
+    });
+}
+
+const optionalAuth = async (request: FastifyRequest, reply: FastifyReply) => {
+    if (request.cookies && request.cookies.auth_token) {
+        await request.jwtVerify({onlyCookie: true}).catch((err) => {
+            reply.setCookie('auth_token', '', {expires: new Date(0)});
+        });   
+    }
 }
 
 function ValidateEmail(email: string) {
@@ -53,6 +70,39 @@ const addProtectedRoutes: FastifyPluginAsyncTypebox = async function addProtecte
     } as FastifyJWTOptions);
 
     const pay_mutexes = new MutexManager();
+
+    fastify.route({
+        url: '/user',
+        method: 'GET',
+        schema: {
+          querystring: Type.Object({
+            from: Type.Number({default: 0, minimum: 0})
+          }),
+          response: {
+            200: Type.Object({
+                leaderboard: Type.Array(Type.Pick(UserSchema, ['id', 'name', 'net_worth'])),
+                user: Type.Optional(Type.Object({
+                    rank: Type.Number(),
+                    name: Type.String(),
+                    net_worth: Type.Number()
+                }))
+            }),
+          }
+        },
+        preHandler: optionalAuth,
+        handler: async function (request, reply) {
+            reply.code(200);
+            let user_info = request.user ? leaderboardCache.getInfoById(request.user.id) : undefined; 
+                
+            return {
+                leaderboard: await leaderboardCache.get(request.query.from),
+                user: user_info ? {
+                    ...(user_info),
+                    name: request.user.name,
+                } : undefined
+            };
+        }
+    })
 
     fastify.post('/login', {
         schema: {
@@ -157,7 +207,7 @@ const addProtectedRoutes: FastifyPluginAsyncTypebox = async function addProtecte
 
     fastify.post('/logout', function (request, reply) {
         reply.setCookie('auth_token', '', {expires: new Date(0)});
-        reply.redirect('/login');
+        reply.code(200);
     })
 
     fastify.post('/me', {preHandler:requireAuth_404} , async function (request, reply) {

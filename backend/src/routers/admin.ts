@@ -8,14 +8,14 @@ import { GlobalStats } from "./lib.js";
 
 const requireAdmin = async (request: FastifyRequest, reply: FastifyReply) => {
     if (!request.cookies || !request.cookies.auth_token) {
-        reply.redirect('/login');
+        reply.code(401);
         return reply;
     }
     
     await request.jwtVerify({onlyCookie: true});
     
     if (!request.user.isAdmin) {
-        reply.redirect('/login');
+        reply.code(401);
         return reply;
     }
 }
