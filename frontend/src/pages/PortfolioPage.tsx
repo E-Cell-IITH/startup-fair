@@ -1,5 +1,5 @@
 import React from "react"
-import { Container, Typography, Grid, Card, CardContent, Avatar, Box, Divider, Button } from "@mui/material"
+import { Container, Typography, Grid, Card, CardContent, Box, Divider, Button } from "@mui/material"
 import { styled } from "@mui/material/styles"
 import { useNavigate } from "react-router-dom"
 import { useEffect, useState } from "react"
@@ -17,13 +17,13 @@ const ProfileHeader = styled(Box)(({ theme }) => ({
   marginBottom: theme.spacing(3),
 }))
 
-const NetWorth = styled(Typography)(({ theme }) => ({
+const NetWorth = styled(Typography)(() => ({
   fontWeight: "bold",
   fontSize: "1.5rem",
   color: 'white',
 }))
 
-const StartupCard = styled(Card)(({ theme }) => ({
+const StartupCard = styled(Card)(() => ({
   height: "100%",
   display: "flex",
   flexDirection: "column",
@@ -76,9 +76,6 @@ const PortfolioPage: React.FC = () => {
               <StartupCard>
                 <CardContent>
                   <Box display="flex" alignItems="center" mb={2}>
-                    <Avatar sx={{ bgcolor: "secondary.main", mr: 2 }}>
-                      <img src={investment.startup.icon} alt={investment.startup.name} />
-                    </Avatar>
                     <Typography variant="h6">{investment.startup.name}</Typography>
                   </Box>
                   <Divider />
