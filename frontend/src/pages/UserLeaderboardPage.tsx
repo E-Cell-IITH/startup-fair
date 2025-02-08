@@ -114,6 +114,47 @@ const UserLeaderboard = () => {
             </CardContent>
           </Card>
         ))}
+
+        {leaderboardData?.user?.rank && leaderboardData?.user.rank > 10 && (
+          <Card
+            key={'logged_in_user'}
+            sx={{
+              mb: 1,
+              bgcolor: 'black',
+              color: 'white',
+              '&:hover': {
+                opacity: 0.9
+              }
+            }}
+          >
+            <CardContent
+              sx={{
+              p: '16px !important',
+              bgcolor: 'primary.main'
+              }}
+            >
+              <Box sx={{ display: 'grid', gridTemplateColumns: isSmallScreen ? '1fr 1fr' : '1fr 1fr 100px', alignItems: 'center' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Box>
+                <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'black' }}>
+                  {leaderboardData.user.name}
+                </Typography>
+                </Box>
+              </Box>
+              <Box>
+                <Typography variant="body1" sx={{ color: 'black' }}>
+                Net worth: {leaderboardData.user.net_worth.toFixed(2)}
+                </Typography>
+              </Box>
+              {!isSmallScreen && (
+                <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'black' }}>
+                {leaderboardData.user.rank}
+                </Typography>
+              )}
+              </Box>
+            </CardContent>
+          </Card>
+        )}
       </Box>
     </>
   )
