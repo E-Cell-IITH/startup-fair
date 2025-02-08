@@ -30,7 +30,7 @@ export async function sendEmails() {
     await Promise.all(
         users.map(async user => {
             await sendPasswordEmail(user.name, user.email, user.password);
-            logger.info("Email sent to", user.email);
+            logger.info(`Email sent to ${user.email}`);
         })
     );
 
