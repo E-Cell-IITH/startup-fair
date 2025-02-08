@@ -143,7 +143,7 @@ const UserLeaderboard = () => {
               </Box>
               <Box>
                 <Typography variant="body1" sx={{ color: 'black' }}>
-                Net worth: {leaderboardData.user.net_worth.toFixed(2)}
+                ${Number(leaderboardData.user.net_worth.toFixed(2)).toLocaleString()}
                 </Typography>
               </Box>
               {!isSmallScreen && (
