@@ -28,10 +28,14 @@ export async function sendEmails() {
     const users = await fetchUsers(process.env.GOOGLE_SHEET_ID as string);
 
     await Promise.all(
-        users.map(async user => {
-            await sendPasswordEmail(user.name, user.email, user.password);
-            logger.info(`Email sent to ${user.email}`);
-        })
+        users.map(user => 
+            sendPasswordEmail(user.name, user.email, user.password)
+                .then(() => logger.info(`Email sent to ${user.email}`))
+                .catch((err) => {
+                    logger.error(`Error while sending email to ${user.email}`)
+                    console.log(err)
+                })
+        )
     );
 
     logger.info("All emails sent");
