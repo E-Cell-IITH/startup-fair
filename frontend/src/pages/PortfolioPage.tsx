@@ -62,7 +62,7 @@ const PortfolioPage: React.FC = () => {
           </Typography>
           <Typography variant="body1" color="white">{userData.email}</Typography>
           <Typography variant="h6" color="white">Balance: ${userData.balance.toLocaleString()}</Typography>
-          <NetWorth>Net Worth: ${(userData.net_worth.toFixed(2)).toLocaleString()}</NetWorth>
+          <NetWorth>Net Worth: ${Number(userData.net_worth.toFixed(2)).toLocaleString()}</NetWorth>
         </ProfileHeader>
         <Box display="flex" justifyContent="flex-start" mb={3}>
           <Button variant="contained" color="warning" onClick={() => navigate('/scan')} startIcon={<QrCode />}>Scan And Pay</Button>

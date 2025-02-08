@@ -88,7 +88,7 @@ const Leaderboard = () => {
                 </Box>
                 <Box>
                   <Typography variant="body1">
-                    {entry.valuation}
+                    ${entry.valuation.toLocaleString()}
                   </Typography>
                 </Box>
                 {!isSmallScreen && (

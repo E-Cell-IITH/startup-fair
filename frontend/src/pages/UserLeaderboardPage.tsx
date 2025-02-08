@@ -70,7 +70,7 @@ const UserLeaderboard = () => {
           }}
         >
           <Typography variant="subtitle1">NAME</Typography>
-          <Typography variant="subtitle1">METRIC</Typography>
+          <Typography variant="subtitle1">NET WORTH</Typography>
           {!isSmallScreen && <Typography variant="subtitle1">RANK</Typography>}
         </Box>
 
@@ -102,7 +102,7 @@ const UserLeaderboard = () => {
               </Box>
               <Box>
                 <Typography variant="body1" sx={{ color: leaderboardData?.user?.name === entry.name ? 'black' : 'white' }}>
-                Net worth: {entry.net_worth.toFixed(2)}
+                ${Number(entry.net_worth.toFixed(2)).toLocaleString()}
                 </Typography>
               </Box>
               {!isSmallScreen && (
