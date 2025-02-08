@@ -56,6 +56,7 @@ export async function seedDatabase() {
     const users = (await fetchUsers(process.env.GOOGLE_SHEET_ID as string)).map(user => {
         
         user.password = bcrypt.hashSync(user.password, 10);
+        user.email = user.email.toLowerCase();
 
         return usersRepository.create({...user, verificationToken: '', verified: true});
     });
