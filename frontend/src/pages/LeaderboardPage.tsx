@@ -57,7 +57,7 @@ const Leaderboard = () => {
           }}
         >
           <Typography variant="subtitle1">NAME</Typography>
-          <Typography variant="subtitle1">METRIC</Typography>
+          <Typography variant="subtitle1">VALUATION</Typography>
           {!isSmallScreen && <Typography variant="subtitle1">RANK</Typography>}
         </Box>
 
@@ -88,10 +88,7 @@ const Leaderboard = () => {
                 </Box>
                 <Box>
                   <Typography variant="body1">
-                    Valuation: {entry.valuation}
-                  </Typography>
-                  <Typography variant="body1">
-                    Equity Sold: {(entry.equity_sold * 100).toFixed(2)}%
+                    {entry.valuation}
                   </Typography>
                 </Box>
                 {!isSmallScreen && (
