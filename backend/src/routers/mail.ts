@@ -62,8 +62,8 @@ export async function sendPasswordEmail(name: string, email: string, password: s
       <div data-smartmail="gmail_signature" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h1 style="color: #333;">Welcome to Vault Venture!</h1>
         
-        <p>Hey ${name}! Vault Venture is a special game from E</p>
-        <p>Your account has been pre-registered for you. Here are your login credentials:</p>
+        <p>Hey ${name}!</p>
+        <p>Your account has been pre-registered for you. Here are your login credentials to participate in the gamified experience of the startup fair:</p>
         
         <div style="background-color: #f5f5f5; padding: 20px; border-radius: 5px; margin: 20px 0;">
           <p style="margin: 5px 0;"><strong>Email:</strong> ${email}</p>
@@ -73,7 +73,6 @@ export async function sendPasswordEmail(name: string, email: string, password: s
         <a href="${process.env.FRONTEND_ORIGIN}" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px; margin: 20px 0;">Check it out</a>
         
         <div style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px;">
-          <p style="color: #666;">If you have any questions or need assistance, contact .</p>
           <p style="color: #666;">Welcome aboard!</p>
         </div>
       </div>
