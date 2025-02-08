@@ -89,24 +89,24 @@ const UserLeaderboard = () => {
             <CardContent
               sx={{
               p: '16px !important',
-              bgcolor: leaderboardData?.user.name === entry.name ? 'primary.main' : 'black'
+              bgcolor: leaderboardData?.user?.name === entry.name ? 'primary.main' : 'black'
               }}
             >
               <Box sx={{ display: 'grid', gridTemplateColumns: isSmallScreen ? '1fr 1fr' : '1fr 1fr 100px', alignItems: 'center' }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                 <Box>
-                <Typography variant="h6" sx={{ fontWeight: 'bold', color: leaderboardData?.user.name === entry.name ? 'black' : 'white' }}>
+                <Typography variant="h6" sx={{ fontWeight: 'bold', color: leaderboardData?.user?.name === entry.name ? 'black' : 'white' }}>
                   {entry.name}
                 </Typography>
                 </Box>
               </Box>
               <Box>
-                <Typography variant="body1" sx={{ color: leaderboardData?.user.name === entry.name ? 'black' : 'white' }}>
+                <Typography variant="body1" sx={{ color: leaderboardData?.user?.name === entry.name ? 'black' : 'white' }}>
                 Net worth: {entry.net_worth.toFixed(2)}
                 </Typography>
               </Box>
               {!isSmallScreen && (
-                <Typography variant="h6" sx={{ fontWeight: 'bold', color: leaderboardData?.user.name === entry.name ? 'black' : 'white' }}>
+                <Typography variant="h6" sx={{ fontWeight: 'bold', color: leaderboardData?.user?.name === entry.name ? 'black' : 'white' }}>
                 {index + 1}
                 </Typography>
               )}
